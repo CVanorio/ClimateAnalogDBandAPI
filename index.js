@@ -10,6 +10,11 @@ const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240506
 const gridTempExt = '/nclimgrid-monthly/access/202404.tave.conus.pnt'
 const gridPrecipExt = '/nclimgrid-monthly/access/202404.prcp.conus.pnt'
 
+const countyPrecipQuery = 'CALL InsertCountyPrecipitationData(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'
+const countyTempQuery = 'CALL InsertCountyTemperatureData(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'
+const calculateCountyAnalogDataQuery = 'CALL CalculateCountyAnalogData;'
+const calculateEuclideanDistancesQuery = 'CALL CalculateEuclideanDistances';
+
 // Load environment variables
 require('dotenv').config();
 
@@ -27,15 +32,15 @@ const connectionOptions = {
 //const db = mysql.createConnection(connectionOptions);
 
 // Function to fetch data from the API
-async function fetchDataFromAPI(url, dataset) {
+async function fetchDataFromAPI(url, scale, query) {
     try {
-      const response = await axios.get(url);
-      const data = response.data;
+      var response = await axios.get(url);
+      var data = response.data;
 
-      if(dataset == 'countyPrecip') {
-        parseAndStoreCountyData(data, 'CALL InsertCountyData(?, ?, ?, ?, ?, ?);');
-      } else if (dataset == 'countyTemp'){
-        parseAndStoreCountyData(data, 'CALL UpdateCountyData;');
+      if(scale == 'County') {
+        parseAndStoreCountyData(data, query);
+      } else if (scale == 'Grid'){
+        //parseAndStoreGridData(data, query);
       }
 
       return data;
@@ -45,16 +50,10 @@ async function fetchDataFromAPI(url, dataset) {
     }
   }
 
-  const precipColumns = [
-    'PrecipJan', 'PrecipFeb', 'PrecipMar', 'PrecipApr', 'PrecipMay', 
-    'PrecipJun', 'PrecipJul', 'PrecipAug', 'PrecipSep', 'PrecipOct', 
-    'PrecipNov', 'PrecipDec'
-];
-
-const tempColumns = [
-    'TempJan', 'TempFeb', 'TempMar', 'TempApr', 'TempMay', 
-    'TempJun', 'TempJul', 'TempAug', 'TempSep', 'TempOct', 
-    'TempNov', 'TempDec'
+const monthColumns = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 
+    'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 
+    'Nov', 'Dece'
 ];
 
 const monthPositions = [
@@ -73,52 +72,60 @@ const monthPositions = [
 ];
 
 // Function to parse the response data and store it in the database
-async function parseAndStoreCountyData(responseData) {
-    let connection;
+async function parseAndStoreCountyData(responseData, query) {
+
+    var connection;
+
     try {
         // Define connection to the MySQL database
         connection = await mysql.createConnection(connectionOptions);
         console.log('MySQL Connected');
         
-        const lines = responseData.split('\n');
+        // var lines = responseData.split('\n');
         
-        // Iterate over each line and process separately
-        for (let line of lines) {
-            // Extract data from the line based on character positions
-            const StateCode = line.substring(0, 2);
-            const CountyCode = line.substring(2, 5);
-            const DatasetID = line.substring(5, 7);
-            const Year = parseInt(line.substring(7, 11));
+        // // Iterate over each line and process separately
+        // for (var line of lines) {
+        //     // Extract data from the line based on character positions
+        //     var StateCode = line.substring(0, 2);
+        //     var CountyCode = line.substring(2, 5);
+        //     var DatasetID = line.substring(5, 7);
+        //     var Year = parseInt(line.substring(7, 11));
 
-            const precipValues = {};
-            const tempValues = {};
+        //     // Check if the county exists in the Counties table
+        //     var [rows] = await connection.execute(
+        //         'SELECT CountyID FROM Counties WHERE CountyCode = ? AND StateCode = ?',
+        //         [CountyCode, StateCode]
+        //     );
+
             
-            // Extract precipitation values
-            for (let i = 0; i < monthPositions.length; i++) {
-                const { start, end } = monthPositions[i];
-                precipValues[precipColumns[i]] = parseFloat(line.substring(start, end));
-            }
+        //     var monthValues = {};
+
+        //     if (rows.length > 0) {
+        //         // Extract variable values
+        //         for (var i = 0; i < monthPositions.length; i++) {
+        //             var { start, end } = monthPositions[i];
+        //             monthValues[monthColumns[i]] = parseFloat(line.substring(start, end));
+        //         }
+                
+
+        //         console.log(`County data to insert: ${CountyCode}, ${StateCode}, ${Year}, ${monthValues}`)
+        //         var queryParams = [CountyCode, StateCode, Year, ...Object.values(monthValues)];
+
+        //         // Execute the insert query
+        //         await connection.execute(query, queryParams);
+        //     } else {
+        //         console.log(`No County: ${CountyCode}, ${StateCode}`)
+        //     }
+
             
-            // Extract temperature values (assuming they follow precipitation values)
-            for (let i = 0; i < monthPositions.length; i++) {
-                const { start, end } = monthPositions[i];
-                const tempStart = start + 84;  // Adjust position for temperature values if they follow precipitation
-                const tempEnd = end + 84;
-                tempValues[tempColumns[i]] = parseFloat(line.substring(tempStart, tempEnd));
-            }
-
-            const placeholders = Array(24).fill('?').join(', ');
-            const columns = [...precipColumns, ...tempColumns].join(', ');
-
-            const query = `INSERT IGNORE INTO CountyData (CountyID, Year, ${columns}) VALUES ((SELECT CountyID FROM Counties WHERE StateCode = ? AND CountyCode = ?), ?, ${placeholders})`;
             
-            const queryParams = [StateCode, CountyCode, Year, ...Object.values(precipValues), ...Object.values(tempValues)];
-
-            // Execute the insert query
-            await connection.execute(query, queryParams);
-        }
+        // }
+        // Execute the insert query
+        //await connection.execute(calculateCountyAnalogDataQuery);
+        await connection.execute(calculateEuclideanDistancesQuery);
 
         console.log('All data inserted successfully.');
+
     } catch (error) {
         console.error('Error inserting data:', error);
     } finally {
@@ -136,8 +143,8 @@ async function parseAndStoreCountyData(responseData) {
 // Add all county data
 app.get('/addallcountydata', async (req, res) => {
     try {
-            fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'countyPrecip')
-            //fetchDataFromAPI(mainURL.concat(countyTempExt), 'countyTemp')
+            //await fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'County', countyPrecipQuery)
+            await fetchDataFromAPI(mainURL.concat(countyTempExt), 'County', countyTempQuery)
 
     } catch (error) {
         if (error.response) {
