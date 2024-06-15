@@ -15,15 +15,20 @@ const gridPrecipExt = '/nclimgrid-monthly/access/202404.prcp.conus.pnt'
 
 const climateNormalYears = [1991, 2020]
 
-const insertWICountyPrecipQuery = 'CALL InsertMonthlyPrecipitationWI(?, ?, ?, ?);'
-const insertWICountyTempQuery = 'CALL InsertMonthlyTemperatureWI(?, ?, ?, ?);'
-const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);'
+const insertWICountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitationWI(?, ?, ?, ?);'
+const insertWICountyMonthlyTempQuery = 'CALL InsertMonthlyTemperatureWI(?, ?, ?, ?);'
 const insertMonthlyPrecipNormsQuery = 'CALL InsertMonthlyPrecipitationNorms(?, ?, ?, ?);'
 const insertMonthlyTempNormsQuery = 'CALL InsertMonthlyTemperatureNorms(?, ?, ?, ?);'
 const insertWICountyYearlyPrecipQuery = 'CALL InsertYearlyPrecipitationWI(?, ?, ?);'
 const insertWICountyYearlyTempQuery = 'CALL InsertYearlyPrecipitationWI(?, ?, ?);'
-const insertYearlyPrecipNormsQuery = 'CALL InsertYearlyPrecipitationNorm(?, ?, ?);'
-const insertYearlyTempNormsQuery = 'CALL InsertYearlyTempNorm(?, ?, ?);'
+const insertYearlyPrecipNormsQuery = 'CALL InsertYearlyPrecipitationNorms(?, ?, ?);'
+const insertYearlyTempNormsQuery = 'CALL InsertYearlyTempNorms(?, ?, ?);'
+const insertWICountySeasonalPrecipQuery = 'CALL InsertSeasonalPrecipitationWI(?, ?, ?, ?)'
+const insertWICountySeasonalTempQuery = 'CALL InsertSeasonalTemperatureWI(?, ?, ?, ?)'
+const insertSeasonalPrecipNormsQuery = 'CALL InsertSeasonalPrecipitationNorms(?, ?, ?, ?)'
+const insertSeasonalTempNormsQuery = 'CALL InsertSeasonalTemperatureNorms(?, ?, ?, ?)'
+
+const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);'
 const getTopAnalogsForTargetByYear = 'CALL GetTopAnalogForTargetByYear(?);'
 
 // Load environment variables
@@ -50,7 +55,7 @@ async function fetchDataFromAPI(url, scale) {
       var data = response.data;
 
       if(scale == 'County') {
-        parseAndStoreWICountyData(data);
+        parseAndInsertAllNormsAndWIData(data);
       } else if (scale == 'Grid'){
         //parseAndStoreGridData(data);
       }
@@ -93,272 +98,463 @@ const monthPositions = [
     { start: 88, end: 95 }   // December
 ];
 
+const seasonalValues = [
+    'winter', 
+    'spring', 
+    'summer', 
+    'fall'
+];
+
+const precipDatatype = '01'
+const tempDatatype = '02'
+
 function roundToTwo(num) {
     return Math.round(num * 100) / 100;
 }
 
 // Function to parse the response data and store it in the database
-async function parseAndStoreWICountyData(responseData) {
-    var connection;
+async function parseAndInsertAllNormsAndWIData(responseData) {
+    var connection
 
     try {
         // Define connection to the MySQL database
-        connection = await mysql.createConnection(connectionOptions);
-        console.log('MySQL Connected');
+        connection = await mysql.createConnection(connectionOptions)
+        console.log('MySQL Connected')
 
-        var currentYear = new Date().getFullYear();
-        var currentMonth = new Date().getMonth();
-        var lines = responseData.split('\n');
-        
-        // Initialize variables for accumulating monthly and yearly totals
-        var monthlyTotals = {
-            '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0,
-            '07': 0, '08': 0, '09': 0, '10': 0, '11': 0, '12': 0
-        };
+        var currentYear = new Date().getFullYear()
+        var currentMonth = new Date().getMonth()
+        var lines = responseData.split('\n')
 
-        var monthlyData = {
-            '01': [], '02': [], '03': [], '04': [], '05': [], '06': [],
-            '07': [], '08': [], '09': [], '10': [], '11': [], '12': []
+        var yearData = {}
+        var prevDecember = null
+        var normProperties = { 
+            monthlyNorms: {},
+            seasonalNorms: {},
+            yearlyNorms: {}
         }
 
-        var yearlyData = {};
-        
         // Iterate over each line and process separately
         for (var line of lines) {
-            var dataType = line.substring(5, 7);
-            var year = parseInt(line.substring(7, 11));
-            var StateCode = line.substring(0, 2);
-            var CountyCode = line.substring(2, 5);
 
-            var insertMonthlyDataQuery = '';
-            var insertMonthlyNormDataQuery = '';
-            var insertSeasonalDataQuery = '';
-            var insertSeasonalNormDataQuery = '';
-            var insertYearlyDataQuery = '';
-            var insertYearlyNormDataQuery = '';
+            yearData = parseMonthlyLineData(line)
 
-            // Set queries based on dataType (precipitation or temperature)
-            if (dataType === '01') {
-                insertMonthlyDataQuery = insertWICountyPrecipQuery;
-                insertMonthlyNormDataQuery = insertMonthlyPrecipNormsQuery;
-                insertYearlyDataQuery = insertWICountyYearlyPrecipQuery; 
-                insertYearlyNormDataQuery = insertYearlyPrecipNormsQuery; 
-            } else if (dataType === '02') {
-                insertMonthlyDataQuery = insertWICountyTempQuery;
-                insertMonthlyNormDataQuery = insertMonthlyTempNormsQuery;
-                insertYearlyDataQuery = insertWICountyYearlyTempQuery; 
-                insertYearlyNormDataQuery = insertYearlyTempNormsQuery; 
+            if (yearData.CountyID === null){ continue }
+
+            if (yearData.Year === 1895) { prevDecember = null}
+
+            if (year >= climateNormalYears[0] && year <= climateNormalYears[1]){
+
+                //await calculateNorms(yearData, prevDecember, normProperties, connection)
+
             }
 
-            // Check if the county exists in the Counties table
-            var [rows] = await connection.execute(
-                getCountyIdByStateAndCountyCodes,
-                [CountyCode, StateCode]
-            );
+            if (StateCode === '47') {
+                await insertWIMonthlyData(yearData, connection)
+                //await insertWISeasonalData(yearData, prevDecember, currentYear, currentMonth, connection)
 
-            if (rows.length > 0 && rows[0].length > 0 && rows[0][0].CountyID) {
-                var CountyID = rows[0][0].CountyID;
-
-                // Initialize yearly data if not already
-                if (!yearlyData[year] && StateCode === '47') {
-                    yearlyData[year] = { total: 0, count: 0, values: [] };
-                } else if (!yearlyData[year] && year >= climateNormalYears[0] && year <= climateNormalYears[1]){
-                    yearlyData[year] = { total: 0, count: 0, values: [] };
+                if (yearData.Year !== currentYear){
+                    //await insertWIYearlyData(yearData, connection)
                 }
-
-                // If state is Wisconsin, add the monthly values to the monthly precipitation or temperature table
-                if (StateCode === '47') {
-                    // Insert monthly data for Wisconsin counties
-                    for (var i = 0; i < monthPositions.length; i++) {
-                        var { start, end } = monthPositions[i];
-                        var month = monthValues[i];
-                        var value = parseFloat(line.substring(start, end));
-
-                        // Check if the value is valid (-9.99 and -99.90 are invalid)
-                        if (value != -9.99 && value != -99.90) {
-                            console.log(`County data to insert: ${CountyCode}, ${StateCode}, ${CountyID}, ${year}, ${month}, ${value}`);
-                            var queryParams = [CountyID, year, month, value];
-                            await connection.execute(insertMonthlyDataQuery, queryParams);
-                        
-                            // Accumulate yearly data
-                            yearlyData[year].total += value;
-                            yearlyData[year].count += 1;
-                            yearlyData[year].values.push(value);
-                        }
-                    }
-                    
-                    // Insert yearly data for Wisconsin counties for all years but the current year
-                    // Current years are not complete
-                    if (year !== currentYear) {
-                        if (dataType === '01') { // Precipitation
-                            var yearlySum = yearlyData[year].total;
-                            var queryParams = [CountyID, year, yearlySum];
-                            // await connection.execute(insertYearlyDataQuery, queryParams);
-                            console.log(`Yearly Precip data for: ${CountyCode}, ${StateCode}, ${year}, ${yearlySum}`)
-                        } else if (dataType === '02') { // Temperature
-                            var yearlyAverage = yearlyData[year].total / yearlyData[year].count;
-                            var queryParams = [CountyID, year, yearlyAverage];
-                            // await connection.execute(insertYearlyDataQuery, queryParams);
-                            console.log(`Yearly Temp data for: ${CountyCode}, ${StateCode}, ${year}, ${yearlyAverage}`)
-                        }
-                    }
-                }
-
-                // For all states, get norms for specified normal range
-                if (year >= climateNormalYears[0] && year <= climateNormalYears[1]) {
-                    //console.log(`Year: ${year}, bool: ${year >= climateNormalYears[0] && year <= climateNormalYears[1]}`)
-                    // Accumulate monthly and yearly totals for norms
-                    for (var i = 0; i < monthPositions.length; i++) {
-                        var { start, end } = monthPositions[i];
-                        var month = monthValues[i];
-                        var value = parseFloat(line.substring(start, end));
-
-                        // Check if the value is valid (-9.99 and -99.90 are invalid)
-                        if (value != -9.99 && value != -99.90) {
-                            monthlyTotals[month] += value;
-                            monthlyData[month].push(value);
-                            
-                            // WI county yearly values have already been added
-                            if (StateCode != '47'){
-                                yearlyData[year].total += value;
-                                yearlyData[year].values.push(value);
-                               // console.log(`Value: ${value}`)
-                            }
-                        }
-                    }
-
-                    
-                    // Insert values and reset monthly totals at end of year range
-                    if (year == climateNormalYears[1]) {
-                       // console.log(`Year: ${year}, bool: ${year == climateNormalYears[1]}`)
-                        
-                        for (var month in monthValues) {
-
-                            var totalMonths = monthlyData[monthValues[month]].length;
-                            var monthlyMean = monthlyTotals[monthValues[month]] / totalMonths;
-                            var sumOfSquares = monthlyData[monthValues[month]].reduce((acc, val) => acc + Math.pow((val - monthlyMean), 2), 0); // Calculate sum
-
-                            var stddev = Math.sqrt(sumOfSquares / totalMonths);
-
-                            // Round mean and stddev to 2 decimal places
-                            monthlyMean = roundToTwo(monthlyMean);
-                            stddev = roundToTwo(stddev);
-
-                            if (!isNaN(monthlyMean) && stddev !== null) {
-                                console.log(`Inserting monthly norm data: ${CountyCode}, ${StateCode}, ${CountyID}, ${monthValues[month]}, ${monthlyMean}, ${stddev}`);
-                                var queryParams = [CountyID, monthValues[month], monthlyMean, stddev];
-                                await connection.execute(insertMonthlyNormDataQuery, queryParams);
-                            }
-
-                            // Reset monthly totals for the next county
-                            monthlyTotals[month] = 0;
-                            monthlyData[month] = [];
-                        }
-
-                        var value = 0;
-                        var totalYears = Object.keys(yearlyData).length;
-                        var yearlyNormMean = 0;
-                        var sumOfSquares = 0;
-                        var yearlyNormStddev = 0;
-
-                        if (dataType === '01') { // Precipitation
-                            //Get yearly totals
-                            var yearlyTotals = []
-                            var yearlyTotalSum = 0;
-                            
-                            for (var y in yearlyData){
-                                value = yearlyData[y].total;
-                                yearlyTotals.push(value);
-                                console.log(`Data in year for loop: ${y}, ${value}`)
-                            }
-
-                            yearlyTotalSum = yearlyTotals.reduce((acc, val) => acc + val, 0);
-                            console.log(`yearlySum: ${yearlyTotalSum}`)
-                            yearlyNormMean = roundToTwo(yearlyTotalSum / totalYears);
-                            sumOfSquares = yearlyTotals.reduce((acc, val) => acc + Math.pow((val - yearlyNormMean), 2), 0);
-                            yearlyNormStddev = roundToTwo(Math.sqrt(sumOfSquares / totalYears));
-
-
-                        } else if (dataType === '02') { // Temperature
-                            var yearlyAvg = []
-                            var yearlyAvgSum = 0;
-
-                            for (var y in yearlyData){
-                                value = yearlyData[y].total;
-                                avgValue = value/12
-                                yearlyAvg.push(avgValue);
-                                console.log(`Data in year for loop: ${y}, ${avgValue}`)
-                            }
-
-                            yearlyAvgSum = yearlyTotals.reduce((acc, val) => acc + val, 0);
-                            console.log(`yearlySum: ${yearlyAvgSum}`)
-                            yearlyNormMean = roundToTwo(yearlyAvgSum / totalYears);
-                            sumOfSquares = yearlyAvg.reduce((acc, val) => acc + Math.pow((val - yearlyNormMean), 2), 0);
-                            yearlyNormStddev = roundToTwo(Math.sqrt(sumOfSquares / totalYears));
-
-
-                        }
-                        console.log(`Inserting yearly Precip norm data: ${CountyCode}, ${StateCode}, ${CountyID}, ${year}, ${yearlyNormMean}, ${yearlyNormStddev}`);
-
-                        if (!isNaN(yearlyNormMean) && yearlyNormStddev !== null) {
-                            
-                            //console.log(`Inserting yearly Precip norm data: ${CountyCode}, ${StateCode}, ${CountyID}, ${year}, ${yearlyNormMean}, ${yearlyNormStddev}`);
-                            var queryParams = [CountyID, yearlyNormMean, yearlyNormStddev];
-                            //await connection.execute(insertYearlyNormDataQuery, queryParams);
-                        }
-
-                        // reset yearlyData list
-                        yearlyData = {}
-                    }
-                }
-            
-            } else {
-                console.log(`No County: ${CountyCode}, ${StateCode}`)
             }
+
+            prevDecember = yearData.MonthlyData[-1]
         }
 
-        console.log('All data inserted successfully.');
+        console.log('All data inserted successfully.')
 
     } catch (error) {
-        console.error('Error inserting data:', error);
+        console.error('Error inserting data:', error)
     } finally {
         if (connection) {
             // Close the database connection
-            await connection.end();
-            console.log('Database connection closed.');
+            await connection.end()
+            console.log('Database connection closed.')
         }
     }
 }
 
-// Function to parse the response data and store it in the database
-async function calculateNormalsAndAnalogs() {
+async function parseMonthlyLineData(line){
 
-    var connection;
+    var dataType = line.substring(5, 7);
+    var year = parseInt(line.substring(7, 11));
+    var stateCode = line.substring(0, 2);
+    var countyCode = line.substring(2, 5);
 
-    try {
+    // Check if the county exists in the Counties table
+    var [rows] = await connection.execute(
+        getCountyIdByStateAndCountyCodes,
+        [countyCode, stateCode]
+    );
 
-         // Define connection to the MySQL database
-         connection = await mysql.createConnection(connectionOptions);
-         console.log('MySQL Connected');
+    var countyID = null
+    if (rows.length > 0 && rows[0].length > 0 && rows[0][0].CountyID) {
+        countyID = rows[0][0].CountyID
+    }
 
-        // Execute calculation query
+    var yearData = {
+        CountyID: countyID, 
+        Year: year, 
+        DataType: dataType,
+        StateCode: stateCode,
+        CountyCode: countyCode,
+        MonthData: {}
+    }
 
-        // To recalculate climate normals using new climate normal year range, update the climateNormalYears constant and uncomment this line and run. Re-comment out when done.
-        //await connection.execute(calculateCountyAnalogDataQuery, climateNormalYears);
+    for (var i = 0; i < monthPositions.length; i++) {
+        var { start, end } = monthPositions[i]
+        var month = monthValues[i]
+        var value = parseFloat(line.substring(start, end))
 
-        await connection.execute(calculateEuclideanDistancesQuery);
+        yearData.MonthData[month] = value
 
-        console.log('All data inserted successfully.');
+    }
 
-    } catch (error) {
-        console.error('Error inserting data:', error);
-    } finally {
-        if (connection) {
-            // Close the database connection
-            await connection.end();
-            console.log('Database connection closed.');
+    return yearData
+}
+
+async function calculateNorms(yearData, prevDecember, normProperties, connection) {
+
+    storeMonthlyValues(yearData, normProperties)
+    storeYearlyValues(yearData, normProperties)
+    storeSeasonalValues(yearData, prevDecember, normProperties)
+
+    if (year == climateNormalYears[1]) {
+
+        await calculateAndInsertMonthlyNorms(yearData, normProperties, connection)
+        await calculateAndInsertYearlyNorms(yearData, normProperties, connection)
+        await calculateAndInsertSeasonalNorms(yearData, normProperties, connection)
+
+        // Reset norm values for the next county
+        normProperties = {}
+    }
+}
+
+function storeMonthlyValues(yearData, normProperties){
+
+    var value = 0
+
+    for (var i in yearData.MonthData){
+
+        if (!normProperties.monthlyNorms[monthValues[i]]){
+            normProperties.monthlyNorms[monthValues[i]] = {total: 0, values: []}
+        }
+
+        value = yearData.MonthData[i]
+
+         // Check if the value is valid (-9.99 and -99.90 are invalid)
+         if (value != -9.99 && value != -99.90) {
+            normProperties.monthlyNorms[monthValues[i]].total += value;
+            normProperties.monthlyNorms[monthValues[i]].values.push(value);
+         }
+    }
+}
+
+function storeYearlyValues(yearData, normProperties){
+
+    if (!normProperties.yearlyNorms.total){
+        normProperties.yearlyNorms = {total: 0, values: []}
+    }
+
+    var value = 0
+    var yearTotal = 0
+
+    for (var i in yearData.MonthData){
+
+        value = yearData.MonthData[i]
+
+         // Check if the value is valid (-9.99 and -99.90 are invalid)
+         if (value != -9.99 && value != -99.90) {
+            yearTotal += value
+         }
+    }
+
+    if (yearData.DataType === tempDatatype){
+        yearTotal = yearTotal / yearData.MonthData.length
+    }
+
+    normProperties.yearlyNorms.total += yearTotal
+    normProperties.yearlyNorms.values.push(value)
+}
+
+function storeSeasonalValues(yearData, prevDecember, normProperties){
+    
+    for (var i in seasonalValues){
+
+        if (!normProperties.seasonalNorms[seasonalValues[i]]){
+            normProperties.seasonalNorms[seasonalValues[i]] = {total: 0, values: []}
         }
     }
+
+    var value = 0
+    var winterTotal = prevDecember
+    var springTotal = 0
+    var summerTotal = 0
+    var fallTotal = 0
+    var monthsPerSeason = 3
+
+    for (var i in yearData.MonthData){
+
+        value = yearData.MonthData[i]
+
+        if (i < 2){
+            winterTotal += value
+        } else if (i < 5){
+            springTotal += value
+        } else if (i < 8) {
+            summerTotal += value
+        } else if (i < 11) {
+            fallTotal += value
+        }
+    }
+
+    if (yearData.DataType === tempDatatype){
+        winterTotal = winterTotal / monthsPerSeason
+        springTotal = springTotal / monthsPerSeason
+        summerTotal = summerTotal / monthsPerSeason
+        fallTotal = fallTotal / monthsPerSeason
+    }
+
+    // winter
+    normProperties.seasonalNorms[0].total += winterTotal
+    normProperties.seasonalNorms[0].values.push(winterTotal)
+    // spring
+    normProperties.seasonalNorms[1].total += springTotal
+    normProperties.seasonalNorms[1].values.push(springTotal)
+    // summer
+    normProperties.seasonalNorms[2].total += summerTotal
+    normProperties.seasonalNorms[2].values.push(summerTotal)
+    // fall
+    normProperties.seasonalNorms[3].total += fallTotal
+    normProperties.seasonalNorms[3].values.push(fallTotal)
+}
+
+async function calculateAndInsertMonthlyNorms(yearData, normProperties, connection){
+    
+    var query = ''
+    
+    if(yearData.DataType === precipDatatype){
+        query = insertMonthlyPrecipNormsQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertMonthlyTempNormsQuery
+    }
+
+    for (var i in yearData.MonthData){
+
+        var totalMonths = normProperties.monthlyNorms[monthValues[i]].values.length
+        var monthlyMean = normProperties.monthlyNorms[monthValues[i]].total / totalMonths
+        var sumOfSquares = normProperties.monthlyNorms[monthValues[i]].values.reduce((acc, val) => acc + Math.pow((val - monthlyMean), 2), 0)
+
+        var stddev = Math.sqrt(sumOfSquares / totalMonths)
+
+        // Round mean and stddev to 2 decimal places
+        monthlyMean = roundToTwo(monthlyMean)
+        stddev = roundToTwo(stddev)
+
+        if (!isNaN(monthlyMean) && stddev !== null) {
+            console.log(`Inserting monthly norm data: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${monthValues[i]}, ${monthlyMean}, ${stddev}`)
+            var queryParams = [yearData.CountyID, monthValues[i], monthlyMean, stddev]
+            await connection.execute(query, queryParams)
+        }
+    }
+}
+
+async function calculateAndInsertYearlyNorms(yearData, normProperties, connection){
+
+    var query = ''
+    
+    if(yearData.DataType === precipDatatype){
+        query = insertYearlyPrecipNormsQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertYearlyTempNormsQuery
+    }
+
+    var totalYears = normProperties.yearlyNorms.values.length
+    var yearlyMean = normProperties.yearlyNorms.total / totalYears
+    var sumOfSquares = normProperties.yearlyNorms.values.reduce((acc, val) => acc + Math.pow((val - yearlyMean), 2), 0)
+
+    var stddev = Math.sqrt(sumOfSquares / totalYears)
+
+    // Round mean and stddev to 2 decimal places
+    yearlyMean = roundToTwo(yearlyMean)
+    stddev = roundToTwo(stddev)
+
+    if (!isNaN(yearlyMean) && stddev !== null) {
+        console.log(`Inserting monthly norm data: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${yearlyMean}, ${stddev}`)
+        var queryParams = [yearData.CountyID, yearlyMean, stddev]
+        await connection.execute(query, queryParams)
+    }
+
+}
+
+async function calculateAndInsertSeasonalNorms(yearData, normProperties, connection){
+
+    var query = ''
+    
+    if(yearData.DataType === precipDatatype){
+        query = insertSeasonalPrecipNormsQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertSeasonalTempNormsQuery
+    }
+
+    for (var i in seasonalValues){
+
+        var totalSeasons = normProperties.seasonalNorms[seasonalValues[i]].values.length
+        var seasonalMean = normProperties.seasonalNorms[seasonalValues[i]].total / totalSeasons
+        var sumOfSquares = normProperties.seasonalNorms[seasonalValues[i]].values.reduce((acc, val) => acc + Math.pow((val - seasonalMean), 2), 0)
+
+        var stddev = Math.sqrt(sumOfSquares / totalSeasons)
+
+        // Round mean and stddev to 2 decimal places
+        seasonalMean = roundToTwo(seasonalMean)
+        stddev = roundToTwo(stddev)
+
+        if (!isNaN(seasonalMean) && stddev !== null) {
+            console.log(`Inserting monthly norm data: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${seasonalValues[i]}, ${seasonalMean}, ${stddev}`)
+            var queryParams = [yearData.CountyID, seasonalValues[i], seasonalMean, stddev]
+            await connection.execute(query, queryParams)
+        }
+    }
+}
+
+async function insertWIMonthlyData(yearData, connection){
+
+    var query = ''
+
+    if(yearData.DataType === precipDatatype){
+        query = insertWICountyMonthlyPrecipQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertWICountyMonthlyTempQuery
+    }
+
+    // Insert monthly data for Wisconsin counties
+    for (var i = 0; i < yearData.MonthValues.length; i++) {
+        var value = yearData.MonthData[monthValues[i]]
+
+        // Check if the value is valid (-9.99 and -99.90 are invalid)
+        if (value != -9.99 && value != -99.90) {
+            console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${yearData.Year}, ${monthValues[i]}, ${value}`)
+            var queryParams = [yearData.CountyID, yearData.Year, monthValues[i], value]
+            await connection.execute(query, queryParams)
+        }
+    }
+}
+
+async function insertWIYearlyData(yearData, connection){
+
+    var query = ''
+
+    if(yearData.DataType === precipDatatype){
+        query = insertWICountyYearlyPrecipQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertWICountyYearlyTempQuery
+    }
+
+    var value = 0
+    var yearTotal = 0
+
+    for (var i in yearData.MonthData){
+
+        value = yearData.MonthData[i]
+
+         // Check if the value is valid (-9.99 and -99.90 are invalid)
+         if (value != -9.99 && value != -99.90) {
+            yearTotal += value
+         }
+    }
+
+    if (yearData.DataType === tempDatatype){
+        yearTotal = yearTotal / yearData.MonthData.length
+    }
+
+    console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${yearData.Year}, ${yearTotal}`)
+    var queryParams = [yearData.CountyID, yearData.Year, yearTotal]
+    await connection.execute(query, queryParams)
+
+}
+
+async function insertWISeasonalData(yearData, prevDecember, currentYear, currentMonth, connection){
+
+    var query = ''
+
+    if(yearData.DataType === precipDatatype){
+        query = insertWICountySeasonalPrecipQuery
+    } else if (yearData.DataType === tempDatatype){
+        query = insertWICountySeasonalTempQuery
+    }
+
+    var value = 0
+    var winterTotal = prevDecember
+    var springTotal = 0
+    var summerTotal = 0
+    var fallTotal = 0
+    var monthsPerSeason = 3
+    var numWinterMonths = 3
+    
+    if (yearData.Year === 1895){
+        numWinterMonths = 2
+    }
+
+    if (yearData.Year === currentYear){
+
+        for (var i in yearData.MonthData){
+
+            value = yearData.MonthData[i]
+    
+            if (i < 2 && currentMonth > 2){
+                winterTotal += value
+            } else if (i < 5 && currentMonth > 5){
+                springTotal += value
+            } else if (i < 8 && currentMonth > 8) {
+                summerTotal += value
+            } else if (i < 11 && currentMonth === 11) {
+                fallTotal += value
+            }
+        }
+    } else {
+
+        for (var i in yearData.MonthData){
+
+            value = yearData.MonthData[i]
+    
+            if (i < 2){
+                winterTotal += value
+            } else if (i < 5){
+                springTotal += value
+            } else if (i < 8) {
+                summerTotal += value
+            } else if (i < 11) {
+                fallTotal += value
+            }
+        }
+    }
+
+    if (yearData.DataType === tempDatatype){
+        winterTotal = winterTotal / numWinterMonths
+        springTotal = springTotal / monthsPerSeason
+        summerTotal = summerTotal / monthsPerSeason
+        fallTotal = fallTotal / monthsPerSeason
+    }
+
+    // winter
+    console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${seasonalValues[0]}, ${winterTotal}`)
+    var queryParams = [yearData.CountyID, seasonalValues[0], winterTotal]
+    await connection.execute(query, queryParams)
+
+    // spring
+    console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${seasonalValues[1]}, ${springTotal}`)
+    var queryParams = [yearData.CountyID, seasonalValues[1], springTotal]
+    await connection.execute(query, queryParams)
+
+    // summer
+    console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${seasonalValues[2]}, ${summerTotal}`)
+    var queryParams = [yearData.CountyID, seasonalValues[2], summerTotal]
+    await connection.execute(query, queryParams)
+
+    // fall
+    console.log(`County data to insert: ${yearData.CountyCode}, ${yearData.StateCode}, ${yearData.CountyID}, ${seasonalValues[3]}, ${fallTotal}`)
+    var queryParams = [yearData.CountyID, seasonalValues[3], fallTotal]
+    await connection.execute(query, queryParams) 
+
 }
 
 
