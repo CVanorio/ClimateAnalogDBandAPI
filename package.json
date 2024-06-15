@@ -13,6 +13,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonfile": "^6.1.0",
-    "mysql2": "^3.9.9"
+    "kill-port": "^2.0.1",
+    "mysql2": "^3.9.9",
+    "portfinder": "^1.0.32"
   }
 }
