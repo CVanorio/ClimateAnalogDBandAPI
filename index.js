@@ -28,15 +28,17 @@ const insertWICountySeasonalTempQuery = 'CALL InsertSeasonalTemperatureWI(?, ?, 
 const insertSeasonalPrecipNormsQuery = 'CALL InsertSeasonalPrecipitationNorms(?, ?, ?, ?)'
 const insertSeasonalTempNormsQuery = 'CALL InsertSeasonalTemperatureNorms(?, ?, ?, ?)'
 
-const calculateMonthlyPrecipDistancesQuery = 'CALL CalculateMonthlyPrecipitationDistances();'
-const calculateMonthlyTempDistancesQuery = 'CALL CalculateMonthlyTemperatureDistances();'
-const calculateMonthlyCombinedDistancesQuery = 'CALL CalculateMonthlyCombinedDistances();'
-const calculateSeasonalPrecipDistancesQuery = 'CALL CalculateSeasonalPrecipitationDistances();'
-const calculateSeasonalTempDistancesQuery = 'CALL CalculateSeasonalTemperatureDistances();'
-const calculateSeasonalCombinedDistancesQuery = 'CALL CalculateSeasonalCombinedDistances();'
-const calculateYearlyPrecipDistancesQuery = 'CALL CalculateYearlyPrecipitationDistances();'
-const calculateYearlyTempDistancesQuery = 'CALL CalculateYearlyTemperatureDistances();'
-const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
+// const calculateMonthlyPrecipDistancesQuery = 'CALL CalculateMonthlyPrecipitationDistances();'
+// const calculateMonthlyTempDistancesQuery = 'CALL CalculateMonthlyTemperatureDistances();'
+// const calculateMonthlyCombinedDistancesQuery = 'CALL CalculateMonthlyCombinedDistances();'
+// const calculateSeasonalPrecipDistancesQuery = 'CALL CalculateSeasonalPrecipitationDistances();'
+// const calculateSeasonalTempDistancesQuery = 'CALL CalculateSeasonalTemperatureDistances();'
+// const calculateSeasonalCombinedDistancesQuery = 'CALL CalculateSeasonalCombinedDistances();'
+// const calculateYearlyPrecipDistancesQuery = 'CALL CalculateYearlyPrecipitationDistances();'
+// const calculateYearlyTempDistancesQuery = 'CALL CalculateYearlyTemperatureDistances();'
+// const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
+
+const calculateYearlyDistancesQuery = 'CALL CalculateYearlyDistances();'
 
 const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);'
 const getTopAnalogsForTargetByYear = 'CALL GetTopAnalogForTargetByYear(?);'
@@ -196,12 +198,6 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
             prevDecember = yearData.MonthData[11]
         }
 
-        if(yearData.DataType === precipDatatype){
-            await calculatePrecipDistances(connection)
-        } else if (yearData.DataType === tempDatatype){
-            await calculateTempDistances(connection)
-        }
-
         console.log('All data inserted successfully.')
 
         return {
@@ -218,7 +214,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
     } finally {
         if (connection) {
             // Close the database connection
-            await connection.end()
+            connection.release()
             console.log('Database connection closed.')
         }
     }
@@ -619,30 +615,72 @@ async function insertWISeasonalData(yearData, prevDecember, currentYear, current
 
 }
 
-async function calculatePrecipDistances(connection){
+// async function calculatePrecipDistances(connection){
     
-    console.log("Calculating Precip variable distances!")
-    //await connection.execute(calculateMonthlyPrecipDistancesQuery) 
-    //await connection.execute(calculateSeasonalPrecipDistancesQuery) 
-    await connection.execute(calculateYearlyPrecipDistancesQuery) 
+//     console.log("Calculating Precip variable distances!")
+//     //await connection.execute(calculateMonthlyPrecipDistancesQuery) 
+//     //await connection.execute(calculateSeasonalPrecipDistancesQuery) 
+//     await connection.execute(calculateYearlyPrecipDistancesQuery) 
     
+// }
+
+// async function calculateTempDistances(connection){
+
+//     console.log("Calculating Temp variable distances!")
+//     //await connection.execute(calculateMonthlyTempDistancesQuery)
+//     //await connection.execute(calculateSeasonalTempDistancesQuery)
+//     await connection.execute(calculateYearlyTempDistancesQuery) 
+// }
+
+// async function calculateTwoVariableDistances(connection){
+//     console.log("Calculating Combined variable distances!")
+//     //await connection.execute(calculateMonthlyCombinedDistancesQuery)
+//    // await connection.execute(calculateSeasonalCombinedDistancesQuery) 
+//     await connection.execute(calculateYearlyCombinedDistancesQuery) 
+
+// }
+
+async function calculateYearlyDistances(connection){
+
+    console.log("Calculating yearly distances!")
+    await connection.execute(calculateYearlyDistancesQuery) 
 }
 
-async function calculateTempDistances(connection){
 
-    console.log("Calculating Temp variable distances!")
-    //await connection.execute(calculateMonthlyTempDistancesQuery)
-    //await connection.execute(calculateSeasonalTempDistancesQuery)
-    await connection.execute(calculateYearlyTempDistancesQuery) 
+// Function to parse the response data and store it in the database
+async function calculateAndInsertEuclideanDistances() {
+    var connection
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection()
+        console.log('Database connected successfully')
+
+        await calculateYearlyDistances(connection)
+        //await calculateTempDistances(connection)
+
+        //await calculateTwoVariableDistances(connection)
+
+        return {
+            success: true,
+            data: responseData
+        };
+
+    } catch (error) {
+        console.error('Error inserting data:', error)
+        return {
+            success: false,
+            error: `Error inserting data: ${error.message}`
+        };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release()
+            console.log('Database connection closed.')
+        }
+    }
 }
-
-async function calculateTwoVariableDistances(connection){
-    console.log("Calculating Combined variable distances!")
-    //await connection.execute(calculateMonthlyCombinedDistancesQuery)
-   // await connection.execute(calculateSeasonalCombinedDistancesQuery) 
-    await connection.execute(calculateYearlyCombinedDistancesQuery) 
-
-}
+    
 
 
 
@@ -653,18 +691,24 @@ app.get('/addallcountydata', async (req, res) => {
            // Use Promise.all to wait for both fetchDataFromAPI calls to complete
         var preciptResult = null
         var tempResult = null
-        await Promise.all([
-            preciptResult = fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'County'),
-            tempResult = fetchDataFromAPI(mainURL.concat(countyTempExt), 'County')
-        ]);
+        var distanceResult = null
+        // await Promise.all([
+        //     preciptResult = fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'County'),
+        //     tempResult = fetchDataFromAPI(mainURL.concat(countyTempExt), 'County')
+        // ]);
 
          // Check results and handle accordingly
-         if (result1.success && result2.success) {
-            await calculateTwoVariableDistances();
-            res.send('All county data added successfully.');
-        } else {
-            res.status(500).send('Error adding county data.');
-        }
+        // if (result1.success && result2.success) {
+            distanceResult = await calculateAndInsertEuclideanDistances();
+
+            if (distanceResult.success) {
+                res.send('All county data added successfully.');
+            } else {
+                res.status(500).send(distanceResult.error);
+            }
+        // } else {
+        //     res.status(500).send('Error adding county data.');
+        // }
 
         res.send('All county data added successfully.');
 
@@ -744,7 +788,6 @@ async function getTopAnalogsByYear(targetCountyName) {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////////////////////
 // Get all counties
