@@ -1,3 +1,6 @@
+const fs = require('fs');
+const jsonfile = require('jsonfile');
+
 // Mapping of original STATEFP to new codes
 const stateFPMapping = {
     '01': 'Alabama', // Alabama
@@ -106,10 +109,10 @@ const stateAbbreviations = {
 
 
 // Function to insert state into the database
-async function insertState(stateFP, stateAbbr, stateName) {
+async function insertState(stateCode, stateAbbr, stateName) {
     try {
 
-        const response = await axios.get(`http://localhost:3000/addstate/${stateFP}/${stateAbbr}/${stateName}`);
+        const response = await axios.get(`http://localhost:3000/addstate/${stateCode}/${stateAbbr}/${stateName}`);
         return response.data;
       } catch (error) {
         console.error('Error inserting state: ', error);
@@ -117,37 +120,39 @@ async function insertState(stateFP, stateAbbr, stateName) {
       }
 }
 
+// Path to the JSON file
+const jsonFilePathStates = 'modified_states.json'; 
 
-   // Add all states
-app.get('/addallstates', (req, res) => {
-    
-    for (const [stateCode, stateName] of Object.entries(stateFPMapping)) {
-        const stateAbbr = stateAbbreviations[stateName];
-        insertState(stateCode, stateAbbr, stateName);
-        console.log(`State inserted: ${stateCode}, ${stateAbbr}, ${stateName}`)
+// Add all counties
+fs.readFile(jsonFilePathStates, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading file:', err);
+        return;
     }
 
-});
+    try {
+        var data = jsonfile.readFile(jsonFilePathStates);
 
-  // Add state
-app.get('/addstate/:StateCode/:StateAbbr/:StateName', (req, res) => {
-    // Extract parameters from query string
-    let { StateCode, StateAbbr, StateName } = req.params;
+        //console.log(data.features)
 
-    // Validate parameters
-    if (!StateCode || !StateAbbr || !StateName) {
-        return res.status(400).send('Invalid parameters');
-    }
+        // Iterate through features
+        for (var f in data.features) {
+            //console.log(data.features[f].properties)
+            var stateName = data.features[f].properties.COUNTYNAME;
+            var stateCode = data.features[f].properties.STATECODE;
+            var stateAbbr = data.features[f].properties.STATEABBR;
 
-    let sql = 'CALL InsertState(?, ?, ?)';
-    db.query(sql, [StateCode, StateAbbr, StateName], (err, result) => {
-        if(err) {
-            throw err;
+
+            // Call function to insert state
+            insertState(stateCode, stateAbbr, stateName);
         }
-        console.log(result);
-        res.send('State inserted');
-    });
-});
+
+        console.log("All states inserted")
+
+    } catch (err) {
+        console.error('Error processing states:', err);
+    }
+})
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,12 +181,17 @@ async function insertCounty(countyID, countyName, stateCode, lat, long) {
 }
 
  // Path to the JSON file
-const jsonFilePath = 'modified_data.json'; 
+const jsonFilePathCounties = 'modified_counties.json'; 
 
 // Add all counties
-app.get('/addallcounties', async (req, res) => {
+fs.readFile(jsonFilePathCounties, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading file:', err);
+        return;
+    }
+
     try {
-        var data = await jsonfile.readFile(jsonFilePath);
+        var data = jsonfile.readFile(jsonFilePathCounties);
 
         //console.log(data.features)
 
@@ -190,47 +200,21 @@ app.get('/addallcounties', async (req, res) => {
             //console.log(data.features[f].properties)
             var countyID = data.features[f].properties.COUNTYFP;
             var countyName = data.features[f].properties.COUNTYNAME;
-            var stateCode = data.features[f].properties.STATEFP;
+            var stateCode = data.features[f].properties.STATECODE;
             var latitude = data.features[f].properties.LAT;
             var longitude = data.features[f].properties.LONG;
 
 
             // Call function to insert state
-            await insertCounty(countyID, countyName, stateCode, latitude, longitude);
+            insertCounty(countyID, countyName, stateCode, latitude, longitude);
             //console.log(`County inserted: ${countyID}, ${countyName}, ${stateCode}, ${latitude}, ${longitude}`)
         }
 
-        res.send('All counties processed');
+        console.log("All counties inserted")
 
     } catch (err) {
         console.error('Error processing counties:', err);
-        res.status(500).send('Error processing counties');
     }
-});
+})
 
-  // Add county
-app.post('/addcounty/:countyID/:countyName/:stateCode/:lat/:long', (req, res) => {
-    // Extract parameters from query string
-    var { countyID, countyName, stateCode, lat, long } = req.params;
-
-    // Convert Latitude and Longitude to numbers
-    var Latitude = parseFloat(lat);
-    var Longitude = parseFloat(long);
-        
-    if (!countyID || !countyName || !stateCode || isNaN(Latitude) || isNaN(Longitude)) {
-        console.log(`Invalid parameters: ${countyID}, ${countyName}, ${stateCode}, ${Latitude}, ${Longitude}`)
-        return res.status(400).send('Invalid parameters');
-    }
-
-    var sql = 'CALL InsertCounty(?, ?, ?, ?, ?)';
-    db.query(sql, [countyID, countyName, stateCode, Latitude, Longitude], (err, result) => {
-        if (err) {
-            console.error('Error inserting county:', err);
-            res.status(500).send('Error inserting county');
-        } else {
-            console.log(result);
-            res.send(result);
-        }
-    });
-    
-});
+ 

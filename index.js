@@ -39,9 +39,12 @@ const insertSeasonalTempNormsQuery = 'CALL InsertSeasonalTemperatureNorms(?, ?, 
 // const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
 
 const calculateYearlyDistancesQuery = 'CALL CalculateYearlyDistances();'
+const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
 
 const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);'
 const getTopAnalogsForTargetByYear = 'CALL GetTopAnalogForTargetByYear(?);'
+const insertCountyQuery = 'CALL InsertCounty(?, ?, ?, ?, ?)';
+const insertStateQuery = 'CALL InsertState(?, ?, ?)';
 
 // Load environment variables
 require('dotenv').config();
@@ -643,7 +646,8 @@ async function insertWISeasonalData(yearData, prevDecember, currentYear, current
 async function calculateYearlyDistances(connection){
 
     console.log("Calculating yearly distances!")
-    await connection.execute(calculateYearlyDistancesQuery) 
+    //await connection.execute(calculateYearlyDistancesQuery) 
+    await connection.execute(calculateYearlyCombinedDistancesQuery)
 }
 
 
@@ -657,6 +661,7 @@ async function calculateAndInsertEuclideanDistances() {
         console.log('Database connected successfully')
 
         await calculateYearlyDistances(connection)
+        
         //await calculateTempDistances(connection)
 
         //await calculateTwoVariableDistances(connection)
@@ -726,6 +731,41 @@ app.get('/addallcountydata', async (req, res) => {
 
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// FRONT END API CALLS
+
+
+// Central endpoint to handle all data requests
+app.get('/data', async (req, res) => {
+    const { county, dateType, dateValue, year, dataType } = req.query;
+  
+    try {
+      let result;
+  
+      // Determine the stored procedure to call based on the parameters
+      if (dateType === 'by_year') {
+        if (dateValue === 'top_analogs') {
+          result = await getTopAnalogsByYear(county, dataType);
+        } else {
+          result = await getDataForYear(county, year, dataType);
+        }
+      } else if (dateType === 'by_season') {
+        result = await getDataBySeason(county, dateValue, dataType);
+      } else if (dateType === 'by_month') {
+        result = await getDataByMonth(county, dateValue, dataType);
+      } else {
+        throw new Error('Invalid dateType');
+      }
+  
+      res.json(result);
+    } catch (error) {
+      console.error('Error processing request:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get top analogs for every year for target county
@@ -749,12 +789,12 @@ app.get('/getTopAnalogsForTargetCounty/:TargetCounty', async (req, res) => {
 // Define the function to call the stored procedure and write the results to a file
 async function getTopAnalogsByYear(targetCountyName) {
 
-    var connection;
+    var connection
 
     try {
-        // Define connection to the MySQL database
-        connection = await mysql.createConnection(connectionOptions);
-        console.log('MySQL Connected');
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
 
         var [rows] = await connection.execute(getTopAnalogsForTargetByYear, [targetCountyName])
 
@@ -780,7 +820,7 @@ async function getTopAnalogsByYear(targetCountyName) {
     } finally {
         if (connection) {
             // Close the database connection
-            await connection.end();
+            connection.release()
             console.log('Database connection closed.');
         }
     }
@@ -788,6 +828,87 @@ async function getTopAnalogsByYear(targetCountyName) {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ // Add county
+ app.post('/addcounty/:countyID/:countyName/:stateCode/:lat/:long', (req, res) => {
+   try{
+        var { countyID, countyName, stateCode, lat, long } = req.params;
+
+        insertCounty(countyID, countyName, stateCode, lat, long)
+        res.send('All county data added successfully.');
+
+    } catch (error) {
+        if (error.response) {
+            console.error('Error response from server:', error.response.status, error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        console.error('Error details:', error.config);
+        res.status(500).send('Error adding county data.');
+    }
+});
+
+async function insertCounty(countyID, countyName, stateCode, lat, long) {
+    var connection
+
+    try {
+        // Get a connection from the pool
+        connection = pool.getConnection();
+        console.log('Database connected successfully');
+        // Extract parameters from query string
+       
+
+        // Convert Latitude and Longitude to numbers
+        var Latitude = parseFloat(lat);
+        var Longitude = parseFloat(long);
+            
+        if (!countyID || !countyName || !stateCode || isNaN(Latitude) || isNaN(Longitude)) {
+            console.log(`Invalid parameters: ${countyID}, ${countyName}, ${stateCode}, ${Latitude}, ${Longitude}`)
+            return res.status(400).send('Invalid parameters');
+        }
+
+        connection.execute(insertCountyQuery, [countyID, countyName, stateCode, Latitude, Longitude], (err, result) => {
+            if (err) {
+                console.error('Error inserting county:', err);
+                res.status(500).send('Error inserting county');
+            } else {
+                console.log(result);
+                res.send(result);
+            }
+        });
+    } catch (error) {
+        console.error('Error getting data:', error);
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release()
+            console.log('Database connection closed.');
+        }
+    }   
+}
+
+
+  // Add state
+  app.get('/addstate/:StateCode/:StateAbbr/:StateName', (req, res) => {
+    // Extract parameters from query string
+    let { StateCode, StateAbbr, StateName } = req.params;
+
+    // Validate parameters
+    if (!StateCode || !StateAbbr || !StateName) {
+        return res.status(400).send('Invalid parameters');
+    }
+
+
+    db.query(insertStateQuery, [StateCode, StateAbbr, StateName], (err, result) => {
+        if(err) {
+            throw err;
+        }
+        console.log(result);
+        res.send('State inserted');
+    });
+});
 
 ///////////////////////////////////////////////////////////////////////////
 // Get all counties
