@@ -1,5 +1,6 @@
 // Import required modules
 const axios = require('axios');
+const cors = require('cors');
 const mysql = require('mysql2/promise');
 const express = require('express');
 const jsonfile = require('jsonfile');
@@ -46,12 +47,17 @@ const getTopAnalogsForTargetByYear = 'CALL GetTopAnalogForTargetByYear(?);'
 const insertCountyQuery = 'CALL InsertCounty(?, ?, ?, ?, ?)';
 const insertStateQuery = 'CALL InsertState(?, ?, ?)';
 
+const getTopPrecipitationAnalogsByYear = 'CALL GetAllTopPrecipAnalogsForCounty(?);'
+
 // Load environment variables
 require('dotenv').config();
 
 // Create Express application
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
 
 const connectionOptions = {
     host        : process.env.DB_HOST,
@@ -737,27 +743,39 @@ app.get('/addallcountydata', async (req, res) => {
 
 
 // Central endpoint to handle all data requests
-app.get('/data', async (req, res) => {
-    const { county, dateType, dateValue, year, dataType } = req.query;
-  
+app.get('/getData', async (req, res) => {
+    const { targetCounty, timeScale, timeScaleValue, year, dataType } = req.query;
+
     try {
+        console.log("Inside getData")
+        console.log(req.query)
       let result;
-  
+
       // Determine the stored procedure to call based on the parameters
-      if (dateType === 'by_year') {
-        if (dateValue === 'top_analogs') {
-          result = await getTopAnalogsByYear(county, dataType);
-        } else {
-          result = await getDataForYear(county, year, dataType);
+      if (timeScale === 'by_year') {
+        if (year === 'top_analogs') {
+
+            console.log("In top analogs by year")
+            
+          result = await getTopAnalogsByYear(targetCounty, dataType);
+
+        } else if (Number(yearNumber) != NaN) {
+
+          var yearNumber = Number(year)
+
+          result = await getDataForYear(targetCounty, yearNumber, dataType);
+
         }
-      } else if (dateType === 'by_season') {
-        result = await getDataBySeason(county, dateValue, dataType);
-      } else if (dateType === 'by_month') {
-        result = await getDataByMonth(county, dateValue, dataType);
-      } else {
-        throw new Error('Invalid dateType');
-      }
+    }
+    //   } else if (dateType === 'by_season') {
+    //     result = await getDataBySeason(county, dateValue, dataType);
+    //   } else if (dateType === 'by_month') {
+    //     result = await getDataByMonth(county, dateValue, dataType);
+    //   } else {
+    //     throw new Error('Invalid dateType');
+    //   }
   
+    //console.log(result.data)
       res.json(result);
     } catch (error) {
       console.error('Error processing request:', error);
@@ -786,41 +804,48 @@ app.get('/getTopAnalogsForTargetCounty/:TargetCounty', async (req, res) => {
 
 });
 
-// Define the function to call the stored procedure and write the results to a file
-async function getTopAnalogsByYear(targetCountyName) {
+// Define the function to call the stored procedure and return the results as a JSON object
+async function getTopAnalogsByYear(targetCountyName, dataType) {
 
-    var connection
+    var connection;
 
     try {
         // Get a connection from the pool
         connection = await pool.getConnection();
         console.log('Database connected successfully');
 
-        var [rows] = await connection.execute(getTopAnalogsForTargetByYear, [targetCountyName])
+        var rows = null
 
-        //console.log(rows)
+        if(dataType === 'precipitation'){
 
-        // Convert the rows to a string format
-        var data = rows.map(row => JSON.stringify(row)).join('\n');
+            console.log('Inside preciptation')
 
-        // Define the output file path
-        var filePath = `${process.env.OUTPUT_FILEPATH}/${targetCountyName}_best_analogs.txt`;
+           rows = await Promise.all([
+            
+                connection.execute(getTopPrecipitationAnalogsByYear, [targetCountyName])
+           ])
 
-        // Write the data to a file
-        fs.writeFile(filePath, data, (err) => {
-            if (err) {
-                console.error('Error writing to file:', err);
-            } else {
-                console.log(`Results written to ${filePath}`);
-            }
-        });
+        } else if (dataType === 'temperature'){
+
+        } else if (dataType === 'both'){
+
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
 
     } catch (error) {
         console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
     } finally {
         if (connection) {
             // Close the database connection
-            connection.release()
+            connection.release();
             console.log('Database connection closed.');
         }
     }
