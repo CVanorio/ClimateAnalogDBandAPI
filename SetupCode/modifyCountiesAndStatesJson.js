@@ -167,46 +167,110 @@ const stateAbbreviations = {
     'Wyoming': 'WY',
 };
 
-// Function to calculate the bounding box and its centroid
-function calculateBoundingBoxCentroidPolygons(coordinates) {
-    let [minX, minY] = coordinates[0][0];
-    let [maxX, maxY] = coordinates[0][0];
+// Function to adjust longitudes if they exceed 160 degrees within a geometry object
+function adjustGeometryLongitudes(geometry) {
+    const { type, coordinates } = geometry;
 
-    coordinates[0].forEach(coord => {
-        if (coord[0] < minX) minX = coord[0];
-        if (coord[0] > maxX) maxX = coord[0];
-        if (coord[1] < minY) minY = coord[1];
-        if (coord[1] > maxY) maxY = coord[1];
-    });
+    // Helper function to adjust a single coordinate's longitude
+    const adjustCoordinate = ([lon, lat]) => {
+        if (lon > 160) {
+            lon -= 360;
+        }
+        return [lon, lat];
+    };
 
-    const centroidX = (minX + maxX) / 2;
-    const centroidY = (minY + maxY) / 2;
+    // Recursive function to adjust coordinates in nested structures
+    const adjustCoordinates = coords => {
+        if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
+            // Array of coordinates
+            return coords.map(adjustCoordinate);
+        } else if (Array.isArray(coords[0])) {
+            // Array of arrays (nested structure)
+            return coords.map(adjustCoordinates);
+        } else {
+            // Single coordinate pair
+            return adjustCoordinate(coords);
+        }
+    };
+
+    // Adjust coordinates based on geometry type
+    if (type === 'Polygon') {
+        // Adjust outer ring coordinates of a Polygon
+        coordinates[0] = adjustCoordinates(coordinates[0]);
+    } else if (type === 'MultiPolygon') {
+        // Adjust outer ring coordinates of each Polygon in a MultiPolygon
+        coordinates.forEach(polygon => {
+            polygon[0] = adjustCoordinates(polygon[0]);
+        });
+    }
+
+    // Update the original geometry with adjusted coordinates
+    return geometry;
+}
+
+function calculateCentroidPolygon(coordinates) {
+    let area = 0.0;
+    let centroidX = 0.0;
+    let centroidY = 0.0;
+
+    const points = coordinates[0]; // assuming the first item contains the outer ring of the polygon
+
+    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+        const [x0, y0] = points[i];
+        const [x1, y1] = points[j];
+        const a = x0 * y1 - x1 * y0;
+        area += a;
+        centroidX += (x0 + x1) * a;
+        centroidY += (y0 + y1) * a;
+    }
+
+    area *= 0.5;
+    centroidX /= (6.0 * area);
+    centroidY /= (6.0 * area);
+
     return { lat: centroidY.toFixed(6), long: centroidX.toFixed(6) };
 }
+
 
 // Function to calculate the bounding box and its centroid for multipolygons
-function calculateBoundingBoxCentroidMultiPolygon(coordinates) {
-    let allCoordinates = [];
+function calculateCentroidMultiPolygon(coordinates) {
+    let totalArea = 0.0;
+    let centroidX = 0.0;
+    let centroidY = 0.0;
+
     coordinates.forEach(polygon => {
-        polygon.forEach(innerPolygon => {
-            allCoordinates.push(...innerPolygon);
+        let area = 0.0;
+        let tempCentroidX = 0.0;
+        let tempCentroidY = 0.0;
+
+        polygon.forEach(ring => {
+            const points = ring;
+
+            for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+                const [x0, y0] = points[i];
+                const [x1, y1] = points[j];
+                const a = x0 * y1 - x1 * y0;
+                area += a;
+                tempCentroidX += (x0 + x1) * a;
+                tempCentroidY += (y0 + y1) * a;
+            }
         });
+
+        area *= 0.5;
+        tempCentroidX /= (6.0 * area);
+        tempCentroidY /= (6.0 * area);
+
+        totalArea += area;
+        centroidX += tempCentroidX * area;
+        centroidY += tempCentroidY * area;
     });
 
-    let [minX, minY] = allCoordinates[0];
-    let [maxX, maxY] = allCoordinates[0];
+    centroidX /= totalArea;
+    centroidY /= totalArea;
 
-    allCoordinates.forEach(coord => {
-        if (coord[0] < minX) minX = coord[0];
-        if (coord[0] > maxX) maxX = coord[0];
-        if (coord[1] < minY) minY = coord[1];
-        if (coord[1] > maxY) maxY = coord[1];
-    });
-
-    const centroidX = (minX + maxX) / 2;
-    const centroidY = (minY + maxY) / 2;
     return { lat: centroidY.toFixed(6), long: centroidX.toFixed(6) };
 }
+
 
 // Function to filter the properties
 const filterCountyProperties = (feature) => {
@@ -250,14 +314,16 @@ fs.readFile('County_FeaturesToJSON.json', 'utf8', (err, data) => {
             feature.properties.STATECODE = stateFPMapping[stateFP] || '';
             feature.properties.STATENAME = stateNamesByCode[stateFP] || '';
 
+            feature.geometry = adjustGeometryLongitudes(feature.geometry)
+
             // Add the centroid of the bounding box of the polygon
             if (feature.geometry && feature.geometry.type === 'Polygon') {
-                var centroid = calculateBoundingBoxCentroidPolygons(feature.geometry.coordinates);
+                var centroid = calculateCentroidPolygon(feature.geometry.coordinates);
                 feature.properties.LAT = centroid.lat;
                 feature.properties.LONG = centroid.long;
             }
             else {
-                var centroid = calculateBoundingBoxCentroidMultiPolygon(feature.geometry.coordinates);
+                var centroid = calculateCentroidMultiPolygon(feature.geometry.coordinates);
                 feature.properties.LAT = centroid.lat;
                 feature.properties.LONG = centroid.long;
             }
@@ -277,103 +343,103 @@ fs.readFile('County_FeaturesToJSON.json', 'utf8', (err, data) => {
     }
 });
 
-// Function to filter the properties
-const filterStateProperties = (feature) => {
-    return {
-        "type": "Feature",
-        "properties": {
-            "OBJECTID": feature.attributes.OBJECTID,
-            "STATEFP": feature.attributes.statecode,
-            "COUNTYFP": feature.attributes.countycode,
-            "FIPSCODE": feature.attributes.fipscode,
-            "STATENAME": feature.attributes.state_name,
-            "STATEABBR": feature.attributes.state_abbr
-        },
-        "geometry": feature.geometry
-    };
-};
+// // Function to filter the properties
+// const filterStateProperties = (feature) => {
+//     return {
+//         "type": "Feature",
+//         "properties": {
+//             "OBJECTID": feature.attributes.OBJECTID,
+//             "STATEFP": feature.attributes.statecode,
+//             "COUNTYFP": feature.attributes.countycode,
+//             "FIPSCODE": feature.attributes.fipscode,
+//             "STATENAME": feature.attributes.state_name,
+//             "STATEABBR": feature.attributes.state_abbr
+//         },
+//         "geometry": feature.geometry
+//     };
+// };
 
-function transformGeometry(geoJson) {
-    // Check if geoJson contains a geometry property
-    if (!geoJson.geometry) {
-        throw new Error("Invalid GeoJSON: missing geometry property");
-    }
+// function transformGeometry(geoJson) {
+//     // Check if geoJson contains a geometry property
+//     if (!geoJson.geometry) {
+//         throw new Error("Invalid GeoJSON: missing geometry property");
+//     }
 
-    // Check if the geometry contains the 'rings' property
-    if (!geoJson.geometry.rings) {
-        throw new Error("Invalid geometry: missing rings property");
-    }
+//     // Check if the geometry contains the 'rings' property
+//     if (!geoJson.geometry.rings) {
+//         throw new Error("Invalid geometry: missing rings property");
+//     }
 
-    // Get the rings from the geometry
-    const { rings } = geoJson.geometry;
+//     // Get the rings from the geometry
+//     const { rings } = geoJson.geometry;
 
-    // Determine if the rings form a polygon or multipolygon
-    var type, coordinates;
+//     // Determine if the rings form a polygon or multipolygon
+//     var type, coordinates;
 
-    if (Array.isArray(rings[0][0])) {
-        // If the first element of rings is an array, we have a MultiPolygon
-        type = "MultiPolygon";
-        coordinates = rings.map(ring => [ring]);
-    } else {
-        // Otherwise, we have a Polygon
-        type = "Polygon";
-        coordinates = rings;
-    }
+//     if (Array.isArray(rings[0][0])) {
+//         // If the first element of rings is an array, we have a MultiPolygon
+//         type = "MultiPolygon";
+//         coordinates = rings.map(ring => [ring]);
+//     } else {
+//         // Otherwise, we have a Polygon
+//         type = "Polygon";
+//         coordinates = rings;
+//     }
 
-    // Update the geometry object
-    geoJson.geometry = {
-        type: type,
-        coordinates: coordinates
-    };
+//     // Update the geometry object
+//     geoJson.geometry = {
+//         type: type,
+//         coordinates: coordinates
+//     };
 
-    return geoJson;
-}
-
-
-// Read the JSON file
-fs.readFile('State_Features.json', 'utf8', (err, data) => {
-    if (err) {
-        console.error('Error reading file:', err);
-        return;
-    }
-
-    try {
-        // Parse JSON data
-        const jsonData = JSON.parse(data);
-
-        const newJson = {
-            "type": jsonData.type,
-            "features": jsonData.features.map(filterStateProperties)
-        };
-
-        // Remove features with STATEFP '11', '15', '72', or '78' (No NOAA data for D.C., Hawaii, Puerto Rico, Virgin Islands)
-        newJson.features = newJson.features.filter(feature => !['11', '15', '72', '78'].includes(feature.properties.STATEFP));
+//     return geoJson;
+// }
 
 
-        // Process each feature
-        newJson.features.forEach(feature => {
+// // Read the JSON file
+// fs.readFile('State_Features.json', 'utf8', (err, data) => {
+//     if (err) {
+//         console.error('Error reading file:', err);
+//         return;
+//     }
 
-            const stateFP = feature.properties.STATEFP;
-            feature.properties.STATECODE = stateFPMapping[stateFP] || '';
+//     try {
+//         // Parse JSON data
+//         const jsonData = JSON.parse(data);
 
-        });
+//         const newJson = {
+//             "type": jsonData.type,
+//             "features": jsonData.features.map(filterStateProperties)
+//         };
 
-        newJson.features = newJson.features.map(feature => {
-            if (feature.geometry && feature.geometry.rings) {
-                return transformGeometry(feature);
-            }
-            return feature;
-        });
+//         // Remove features with STATEFP '11', '15', '72', or '78' (No NOAA data for D.C., Hawaii, Puerto Rico, Virgin Islands)
+//         newJson.features = newJson.features.filter(feature => !['11', '15', '72', '78'].includes(feature.properties.STATEFP));
 
-        // Write modified JSON back to file
-        fs.writeFile('modified_states.json', JSON.stringify(newJson, null, 2), err => {
-            if (err) {
-                console.error('Error writing file:', err);
-                return;
-            }
-            console.log('Modified JSON file created successfully.');
-        });
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-    }
-});
+
+//         // Process each feature
+//         newJson.features.forEach(feature => {
+
+//             const stateFP = feature.properties.STATEFP;
+//             feature.properties.STATECODE = stateFPMapping[stateFP] || '';
+
+//         });
+
+//         newJson.features = newJson.features.map(feature => {
+//             if (feature.geometry && feature.geometry.rings) {
+//                 return transformGeometry(feature);
+//             }
+//             return feature;
+//         });
+
+//         // Write modified JSON back to file
+//         fs.writeFile('modified_states.json', JSON.stringify(newJson, null, 2), err => {
+//             if (err) {
+//                 console.error('Error writing file:', err);
+//                 return;
+//             }
+//             console.log('Modified JSON file created successfully.');
+//         });
+//     } catch (error) {
+//         console.error('Error parsing JSON:', error);
+//     }
+// });

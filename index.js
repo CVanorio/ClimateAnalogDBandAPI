@@ -16,38 +16,70 @@ const gridPrecipExt = '/nclimgrid-monthly/access/202404.prcp.conus.pnt'
 
 const climateNormalYears = [1991, 2020]
 
+// Insert data from NOAA files
+// Monthly
 const insertWICountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitationWI(?, ?, ?, ?);'
 const insertWICountyMonthlyTempQuery = 'CALL InsertMonthlyTemperatureWI(?, ?, ?, ?);'
 const insertMonthlyPrecipNormsQuery = 'CALL InsertMonthlyPrecipitationNorms(?, ?, ?, ?);'
 const insertMonthlyTempNormsQuery = 'CALL InsertMonthlyTemperatureNorms(?, ?, ?, ?);'
+// Yearly
 const insertWICountyYearlyPrecipQuery = 'CALL InsertYearlyPrecipitationWI(?, ?, ?);'
 const insertWICountyYearlyTempQuery = 'CALL InsertYearlyTemperatureWI(?, ?, ?);'
 const insertYearlyPrecipNormsQuery = 'CALL InsertYearlyPrecipitationNorms(?, ?, ?);'
 const insertYearlyTempNormsQuery = 'CALL InsertYearlyTemperatureNorms(?, ?, ?);'
+// Seasonal
 const insertWICountySeasonalPrecipQuery = 'CALL InsertSeasonalPrecipitationWI(?, ?, ?, ?)'
 const insertWICountySeasonalTempQuery = 'CALL InsertSeasonalTemperatureWI(?, ?, ?, ?)'
 const insertSeasonalPrecipNormsQuery = 'CALL InsertSeasonalPrecipitationNorms(?, ?, ?, ?)'
 const insertSeasonalTempNormsQuery = 'CALL InsertSeasonalTemperatureNorms(?, ?, ?, ?)'
 
-// const calculateMonthlyPrecipDistancesQuery = 'CALL CalculateMonthlyPrecipitationDistances();'
-// const calculateMonthlyTempDistancesQuery = 'CALL CalculateMonthlyTemperatureDistances();'
-// const calculateMonthlyCombinedDistancesQuery = 'CALL CalculateMonthlyCombinedDistances();'
-// const calculateSeasonalPrecipDistancesQuery = 'CALL CalculateSeasonalPrecipitationDistances();'
-// const calculateSeasonalTempDistancesQuery = 'CALL CalculateSeasonalTemperatureDistances();'
-// const calculateSeasonalCombinedDistancesQuery = 'CALL CalculateSeasonalCombinedDistances();'
-// const calculateYearlyPrecipDistancesQuery = 'CALL CalculateYearlyPrecipitationDistances();'
-// const calculateYearlyTempDistancesQuery = 'CALL CalculateYearlyTemperatureDistances();'
-// const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
 
-const calculateYearlyDistancesQuery = 'CALL CalculateYearlyDistances();'
+// Calculate euclidean distances
+// Monthly
+const calculateMonthlyPrecipDistancesQuery = 'CALL CalculateMonthlyPrecipitationDistances();'
+const calculateMonthlyTempDistancesQuery = 'CALL CalculateMonthlyTemperatureDistances();'
+const calculateMonthlyCombinedDistancesQuery = 'CALL CalculateAllMonthlyCombinedDistances();'
+// Seasonal
+const calculateSeasonalPrecipDistancesQuery = 'CALL CalculateSeasonalPrecipitationDistances();'
+const calculateSeasonalTempDistancesQuery = 'CALL CalculateSeasonalTemperatureDistances();'
+const calculateSeasonalCombinedDistancesQuery = 'CALL CalculateAllSeasonalCombinedDistances();'
+// Yearly
+const calculateYearlyPrecipDistancesQuery = 'CALL CalculateYearlyPrecipitationDistances();'
+const calculateYearlyTempDistancesQuery = 'CALL CalculateYearlyTemperatureDistances();'
 const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();'
 
+// Get yearly top analogs
+const getTopPrecipitationAnalogsByYearQuery = 'CALL GetAllTopPrecipAnalogsForCountyByYear(?);'
+const getTopTemperatureAnalogsByYearQuery = 'CALL GetAllTopTempAnalogsForCountyByYear(?);'
+const getTopCombinedAnalogsByYearQuery = 'CALL GetAllTopCombinedAnalogsForCountyByYear(?);'
+// Get yearly analogs by year
+const getPrecipitationAnalogsByYearQuery = 'CALL GetTopPrecipAnalogsForCountyByYear(?, ?);'
+const getTemperatureAnalogsByYearQuery = 'CALL GetTopTempAnalogsForCountyByYear(?, ?);'
+const getCombinedAnalogsByYearQuery = 'CALL GetTopCombinedAnalogsForCountyByYear(?, ?);'
+
+// Get seasonal top analogs
+const getTopPrecipitationAnalogsBySeasonQuery = 'CALL GetAllTopPrecipAnalogsForCountyBySeason(?, ?);'
+const getTopTemperatureAnalogsBySeasonQuery = 'CALL GetAllTopTempAnalogsForCountyBySeason(?, ?);'
+const getTopCombinedAnalogsBySeasonQuery = 'CALL GetAllTopCombinedAnalogsForCountyBySeason(?, ?);'
+// Get seasonal analogs by year
+const getPrecipitationAnalogsBySeasonQuery = 'CALL GetPrecipAnalogsForCountyByYearAndSeason(?, ?, ?);'
+const getTemperatureAnalogsBySeasonQuery = 'CALL GetTempAnalogsForCountyByYearAndSeason(?, ?, ?);'
+const getCombinedAnalogsBySeasonQuery = 'CALL GetCombinedAnalogsForCountyByYearAndSeason(?, ?, ?);'
+
+// Get monthly top analogs
+const getTopPrecipitationAnalogsByMonthQuery = 'CALL GetAllTopPrecipAnalogsForCountyByMonth(?, ?);'
+const getTopTemperatureAnalogsByMonthQuery = 'CALL GetAllTopTempAnalogsForCountyByMonth(?, ?);'
+const getTopCombinedAnalogsByMonthQuery = 'CALL GetAllTopCombinedAnalogsForCountyByMonth(?, ?);'
+// Get monthly analogs by year
+const getPrecipitationAnalogsByMonthQuery = 'CALL GetPrecipAnalogsForCountyByYearAndMonth(?, ?, ?);'
+const getTemperatureAnalogsByMonthQuery = 'CALL GetTempAnalogsForCountyByYearAneMonth(?, ?, ?);'
+const getCombinedAnalogsByMonthQuery = 'CALL GetCombinedAnalogsForCountyByYearAndMonth(?, ?, ?);'
+
+// Other queries
 const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);'
 const getTopAnalogsForTargetByYear = 'CALL GetTopAnalogForTargetByYear(?);'
 const insertCountyQuery = 'CALL InsertCounty(?, ?, ?, ?, ?)';
 const insertStateQuery = 'CALL InsertState(?, ?, ?)';
-
-const getTopPrecipitationAnalogsByYear = 'CALL GetAllTopPrecipAnalogsForCounty(?);'
 
 // Load environment variables
 require('dotenv').config();
@@ -624,36 +656,29 @@ async function insertWISeasonalData(yearData, prevDecember, currentYear, current
 
 }
 
-// async function calculatePrecipDistances(connection){
+async function calculatePrecipDistances(connection){
     
-//     console.log("Calculating Precip variable distances!")
-//     //await connection.execute(calculateMonthlyPrecipDistancesQuery) 
-//     //await connection.execute(calculateSeasonalPrecipDistancesQuery) 
-//     await connection.execute(calculateYearlyPrecipDistancesQuery) 
+    console.log("Calculating Precip variable distances!")
+    //await connection.execute(calculateMonthlyPrecipDistancesQuery) 
+    //await connection.execute(calculateSeasonalPrecipDistancesQuery) 
+    await connection.execute(calculateYearlyPrecipDistancesQuery) 
     
-// }
+}
 
-// async function calculateTempDistances(connection){
+async function calculateTempDistances(connection){
 
-//     console.log("Calculating Temp variable distances!")
-//     //await connection.execute(calculateMonthlyTempDistancesQuery)
-//     //await connection.execute(calculateSeasonalTempDistancesQuery)
-//     await connection.execute(calculateYearlyTempDistancesQuery) 
-// }
+    console.log("Calculating Temp variable distances!")
+    //await connection.execute(calculateMonthlyTempDistancesQuery)
+    //await connection.execute(calculateSeasonalTempDistancesQuery)
+    await connection.execute(calculateYearlyTempDistancesQuery) 
+}
 
-// async function calculateTwoVariableDistances(connection){
-//     console.log("Calculating Combined variable distances!")
-//     //await connection.execute(calculateMonthlyCombinedDistancesQuery)
-//    // await connection.execute(calculateSeasonalCombinedDistancesQuery) 
-//     await connection.execute(calculateYearlyCombinedDistancesQuery) 
+async function calculateTwoVariableDistances(connection){
+    console.log("Calculating Combined variable distances!")
+    //await connection.execute(calculateMonthlyCombinedDistancesQuery)
+    //await connection.execute(calculateSeasonalCombinedDistancesQuery) 
+    await connection.execute(calculateYearlyCombinedDistancesQuery) 
 
-// }
-
-async function calculateYearlyDistances(connection){
-
-    console.log("Calculating yearly distances!")
-    //await connection.execute(calculateYearlyDistancesQuery) 
-    await connection.execute(calculateYearlyCombinedDistancesQuery)
 }
 
 
@@ -666,11 +691,11 @@ async function calculateAndInsertEuclideanDistances() {
         connection = await pool.getConnection()
         console.log('Database connected successfully')
 
-        await calculateYearlyDistances(connection)
+        await calculatePrecipDistances(connection)
         
-        //await calculateTempDistances(connection)
+        await calculateTempDistances(connection)
 
-        //await calculateTwoVariableDistances(connection)
+        await calculateTwoVariableDistances(connection)
 
         return {
             success: true,
@@ -750,6 +775,7 @@ app.get('/getData', async (req, res) => {
         console.log("Inside getData")
         console.log(req.query)
       let result;
+      var yearNumber = Number(year)
 
       // Determine the stored procedure to call based on the parameters
       if (timeScale === 'by_year') {
@@ -757,23 +783,47 @@ app.get('/getData', async (req, res) => {
 
             console.log("In top analogs by year")
             
-          result = await getTopAnalogsByYear(targetCounty, dataType);
+          result = await getTopAnalogsByYear(targetCounty, dataType)
 
         } else if (Number(yearNumber) != NaN) {
 
-          var yearNumber = Number(year)
-
-          result = await getDataForYear(targetCounty, yearNumber, dataType);
+          result = await getDataByYear(targetCounty, yearNumber, dataType)
 
         }
-    }
-    //   } else if (dateType === 'by_season') {
-    //     result = await getDataBySeason(county, dateValue, dataType);
-    //   } else if (dateType === 'by_month') {
-    //     result = await getDataByMonth(county, dateValue, dataType);
-    //   } else {
-    //     throw new Error('Invalid dateType');
-    //   }
+    
+      } else if (timeScale === 'by_season') {
+
+        if (year === 'top_analogs') {
+
+            console.log("In top analogs by season")
+            
+          result = await getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType)
+
+        } else if (Number(yearNumber) != NaN) {
+
+          result = await getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType)
+
+        }
+
+      } else if (timeScale === 'by_month') {
+
+        if (year === 'top_analogs') {
+
+            console.log("In top analogs by month")
+            
+          result = await getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType)
+
+        } else if (Number(yearNumber) != NaN) {
+
+          result = await getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType)
+
+        }
+
+      } else {
+
+        throw new Error('Invalid timeScale');
+      }
+
   
     //console.log(result.data)
       res.json(result);
@@ -786,23 +836,23 @@ app.get('/getData', async (req, res) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Get top analogs for every year for target county
-app.get('/getTopAnalogsForTargetCounty/:TargetCounty', async (req, res) => {
-    try {
-        await getTopAnalogsByYear(req.params.TargetCounty)
+// // Get top analogs for every year for target county
+// app.get('/getTopAnalogsForTargetCounty/:TargetCounty', async (req, res) => {
+//     try {
+//         await getTopAnalogsByYear(req.params.TargetCounty)
 
-    } catch (error) {
-        if (error.response) {
-            console.error('Error response from server:', error.response.status, error.response.data);
-        } else if (error.request) {
-            console.error('No response received:', error.request);
-        } else {
-            console.error('Error setting up the request:', error.message);
-        }
-        console.error('Error details:', error.config);
-    }
+//     } catch (error) {
+//         if (error.response) {
+//             console.error('Error response from server:', error.response.status, error.response.data);
+//         } else if (error.request) {
+//             console.error('No response received:', error.request);
+//         } else {
+//             console.error('Error setting up the request:', error.message);
+//         }
+//         console.error('Error details:', error.config);
+//     }
 
-});
+// });
 
 // Define the function to call the stored procedure and return the results as a JSON object
 async function getTopAnalogsByYear(targetCountyName, dataType) {
@@ -822,12 +872,320 @@ async function getTopAnalogsByYear(targetCountyName, dataType) {
 
            rows = await Promise.all([
             
-                connection.execute(getTopPrecipitationAnalogsByYear, [targetCountyName])
+                connection.execute(getTopPrecipitationAnalogsByYearQuery, [targetCountyName])
            ])
 
         } else if (dataType === 'temperature'){
 
+            console.log('Inside temperature')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTopTemperatureAnalogsByYearQuery, [targetCountyName])
+           ])
+
         } else if (dataType === 'both'){
+            console.log('Inside both')
+
+            rows = await Promise.all([
+             
+                 connection.execute(getTopCombinedAnalogsByYearQuery, [targetCountyName])
+            ])
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
+
+    } catch (error) {
+        console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
+}
+
+async function getDataByYear(targetCounty, yearNumber, dataType){
+
+    var connection;
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
+
+        var rows = null
+
+        if(dataType === 'precipitation'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getPrecipitationAnalogsByYearQuery, [targetCounty, yearNumber])
+           ])
+
+        } else if (dataType === 'temperature'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTemperatureAnalogsByYearQuery, [targetCounty, yearNumber])
+           ])
+
+        } else if (dataType === 'both'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getCombinedAnalogsByYearQuery, [targetCounty, yearNumber])
+           ])
+
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
+
+    } catch (error) {
+        console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
+}
+
+async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType) {
+
+    var connection;
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
+
+        var rows = null
+
+        if(dataType === 'precipitation'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTopPrecipitationAnalogsBySeasonQuery, [targetCounty, timeScaleValue])
+           ])
+
+        } else if (dataType === 'temperature'){
+
+            console.log('Inside temperature')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTopTemperatureAnalogsBySeasonQuery, [targetCounty, timeScaleValue])
+           ])
+
+        } else if (dataType === 'both'){
+            console.log('Inside both')
+
+            rows = await Promise.all([
+             
+                 connection.execute(getTopCombinedAnalogsBySeasonQuery, [targetCounty, timeScaleValue])
+            ])
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
+
+    } catch (error) {
+        console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
+}
+
+async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType){
+
+    var connection;
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
+
+        var rows = null
+
+        if(dataType === 'precipitation'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getPrecipitationAnalogsBySeasonQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
+
+        } else if (dataType === 'temperature'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTemperatureAnalogsBySeasonQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
+
+        } else if (dataType === 'both'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getCombinedAnalogsBySeasonQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
+
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
+
+    } catch (error) {
+        console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
+}
+
+async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
+
+    var connection;
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
+
+        var rows = null
+
+        if(dataType === 'precipitation'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTopPrecipitationAnalogsByMonthQuery, [targetCounty, timeScaleValue])
+           ])
+
+        } else if (dataType === 'temperature'){
+
+            console.log('Inside temperature')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTopTemperatureAnalogsByMonthQuery, [targetCounty, timeScaleValue])
+           ])
+
+        } else if (dataType === 'both'){
+            console.log('Inside both')
+
+            rows = await Promise.all([
+             
+                 connection.execute(getTopCombinedAnalogsByMonthQuery, [targetCounty, timeScaleValue])
+            ])
+        }
+
+        console.log(rows)
+        
+        
+
+        // Return the rows as a JSON object
+        return{ success: true, data: rows };
+
+    } catch (error) {
+        console.error('Error getting data:', error);
+        // Return an error object
+        return { success: false, error: error.message };
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
+}
+
+async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType){
+
+    var connection;
+
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
+
+        var rows = null
+
+        if(dataType === 'precipitation'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getPrecipitationAnalogsByMonthQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
+
+        } else if (dataType === 'temperature'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getTemperatureAnalogsByMonthQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
+
+        } else if (dataType === 'both'){
+
+            console.log('Inside preciptation')
+
+           rows = await Promise.all([
+            
+                connection.execute(getCombinedAnalogsByMonthQuery, [targetCounty, yearNumber, timeScaleValue])
+           ])
 
         }
 
