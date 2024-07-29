@@ -9,8 +9,8 @@ const portfinder = require('portfinder');
 const killPort = require('kill-port');
 
 const mainURL = 'https://www.ncei.noaa.gov/data'
-const countyTempExt = '/nclimdiv-monthly/access/climdiv-tmpccy-v1.0.0-20240606'
-const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240606'
+const countyTempExt = '/nclimdiv-monthly/access/climdiv-tmpccy-v1.0.0-20240705'
+const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240705'
 const gridTempExt = '/nclimgrid-monthly/access/202404.tave.conus.pnt'
 const gridPrecipExt = '/nclimgrid-monthly/access/202404.prcp.conus.pnt'
 
@@ -72,7 +72,7 @@ const getTopTemperatureAnalogsByMonthQuery = 'CALL GetAllTopTempAnalogsForCounty
 const getTopCombinedAnalogsByMonthQuery = 'CALL GetAllTopCombinedAnalogsForCountyByMonth(?, ?);'
 // Get monthly analogs by year
 const getPrecipitationAnalogsByMonthQuery = 'CALL GetPrecipAnalogsForCountyByYearAndMonth(?, ?, ?);'
-const getTemperatureAnalogsByMonthQuery = 'CALL GetTempAnalogsForCountyByYearAneMonth(?, ?, ?);'
+const getTemperatureAnalogsByMonthQuery = 'CALL GetTempAnalogsForCountyByYearAndMonth(?, ?, ?);'
 const getCombinedAnalogsByMonthQuery = 'CALL GetCombinedAnalogsForCountyByYearAndMonth(?, ?, ?);'
 
 // Other queries
@@ -733,15 +733,15 @@ app.get('/addallcountydata', async (req, res) => {
         //     tempResult = fetchDataFromAPI(mainURL.concat(countyTempExt), 'County')
         // ]);
 
-         // Check results and handle accordingly
-        // if (result1.success && result2.success) {
-            distanceResult = await calculateAndInsertEuclideanDistances();
+        //  // Check results and handle accordingly
+        //  if (preciptResult.success && tempResult.success) {
+              distanceResult = await calculateAndInsertEuclideanDistances();
 
-            if (distanceResult.success) {
-                res.send('All county data added successfully.');
-            } else {
-                res.status(500).send(distanceResult.error);
-            }
+        //     if (distanceResult.success) {
+        //         res.send('All county data added successfully.');
+        //     } else {
+        //         res.status(500).send(distanceResult.error);
+        //     }
         // } else {
         //     res.status(500).send('Error adding county data.');
         // }
@@ -935,7 +935,7 @@ async function getDataByYear(targetCounty, yearNumber, dataType){
 
         } else if (dataType === 'temperature'){
 
-            console.log('Inside preciptation')
+            console.log('Inside temperature')
 
            rows = await Promise.all([
             
@@ -944,7 +944,7 @@ async function getDataByYear(targetCounty, yearNumber, dataType){
 
         } else if (dataType === 'both'){
 
-            console.log('Inside preciptation')
+            console.log('Inside both')
 
            rows = await Promise.all([
             
@@ -1238,7 +1238,7 @@ async function insertCounty(countyID, countyName, stateCode, lat, long) {
 
     try {
         // Get a connection from the pool
-        connection = pool.getConnection();
+        connection = await pool.getConnection();
         console.log('Database connected successfully');
         // Extract parameters from query string
        
