@@ -1117,7 +1117,7 @@ async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
 
            rows = await Promise.all([
             
-                connection.execute(getTopTemperatureAnalogsByMonthQuery, [targetCounty, timeScaleValue])
+                connection.execute(getTopTemperatureAnalogsByMonthQuery, [targetCounty, timeScaleValue, ])
            ])
 
         } else if (dataType === 'both'){
