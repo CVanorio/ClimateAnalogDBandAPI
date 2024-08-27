@@ -4,15 +4,14 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const express = require('express');
 const jsonfile = require('jsonfile');
+const path = require('path');
 const fs = require('fs');
 const portfinder = require('portfinder');
 const killPort = require('kill-port');
 
 const mainURL = 'https://www.ncei.noaa.gov/data'
-const countyTempExt = '/nclimdiv-monthly/access/climdiv-tmpccy-v1.0.0-20240705'
-const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240705'
-const gridTempExt = '/nclimgrid-monthly/access/202404.tave.conus.pnt'
-const gridPrecipExt = '/nclimgrid-monthly/access/202404.prcp.conus.pnt'
+const countyTempExt = '/nclimdiv-monthly/access/climdiv-tmpccy-v1.0.0-20240806'
+const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240806'
 
 const climateNormalYears = [1991, 2020]
 
@@ -728,14 +727,14 @@ app.get('/addallcountydata', async (req, res) => {
         var preciptResult = null
         var tempResult = null
         var distanceResult = null
-        // await Promise.all([
-        //     preciptResult = fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'County'),
-        //     tempResult = fetchDataFromAPI(mainURL.concat(countyTempExt), 'County')
-        // ]);
+        await Promise.all([
+            preciptResult = fetchDataFromAPI(mainURL.concat(countyPrecipExt), 'County'),
+            tempResult = fetchDataFromAPI(mainURL.concat(countyTempExt), 'County')
+        ]);
 
         //  // Check results and handle accordingly
         //  if (preciptResult.success && tempResult.success) {
-              distanceResult = await calculateAndInsertEuclideanDistances();
+         //     distanceResult = await calculateAndInsertEuclideanDistances();
 
         //     if (distanceResult.success) {
         //         res.send('All county data added successfully.');
@@ -768,70 +767,75 @@ app.get('/addallcountydata', async (req, res) => {
 
 
 // Central endpoint to handle all data requests
-app.get('/getData', async (req, res) => {
-    const { targetCounty, timeScale, timeScaleValue, year, dataType } = req.query;
+// Define the base directory for storing the response files
+const baseDirectory = path.join(__dirname, './mockDB');
 
-    try {
-        console.log("Inside getData")
-        console.log(req.query)
-      let result;
-      var yearNumber = Number(year)
+// Function to write response data to a file
+const writeResponseData = (targetCounty, timeScale, timeScaleValue, year, dataType, data) => {
+  const fileName = `${targetCounty}_${timeScale}_${year}_${timeScaleValue}_${dataType}.json`;
+  const filePath = path.join(baseDirectory, fileName);
 
-      // Determine the stored procedure to call based on the parameters
-      if (timeScale === 'by_year') {
-        if (year === 'top_analogs') {
+  // Ensure the directory exists
+  if (!fs.existsSync(baseDirectory)) {
+    fs.mkdirSync(baseDirectory, { recursive: true });
+  }
 
-            console.log("In top analogs by year")
-            
-          result = await getTopAnalogsByYear(targetCounty, dataType)
-
-        } else if (Number(yearNumber) != NaN) {
-
-          result = await getDataByYear(targetCounty, yearNumber, dataType)
-
-        }
-    
-      } else if (timeScale === 'by_season') {
-
-        if (year === 'top_analogs') {
-
-            console.log("In top analogs by season")
-            
-          result = await getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType)
-
-        } else if (Number(yearNumber) != NaN) {
-
-          result = await getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType)
-
-        }
-
-      } else if (timeScale === 'by_month') {
-
-        if (year === 'top_analogs') {
-
-            console.log("In top analogs by month")
-            
-          result = await getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType)
-
-        } else if (Number(yearNumber) != NaN) {
-
-          result = await getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType)
-
-        }
-
-      } else {
-
-        throw new Error('Invalid timeScale');
-      }
-
-  
-    //console.log(result.data)
-      res.json(result);
-    } catch (error) {
-      console.error('Error processing request:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), (err) => {
+    if (err) {
+      console.error('Error writing response data to file:', err);
+    } else {
+      console.log(`Response data written to ${filePath}`);
     }
   });
+};
+
+// Central endpoint to handle all data requests
+app.get('/getData', async (req, res) => {
+  const { targetCounty, timeScale, timeScaleValue, year, dataType } = req.query;
+
+  try {
+    console.log("Inside getData");
+    console.log(req.query);
+    let result;
+    var yearNumber = Number(year);
+
+    // Determine the stored procedure to call based on the parameters
+    if (timeScale === 'by_year') {
+      if (year === 'top_analogs') {
+        console.log("In top analogs by year");
+        result = await getTopAnalogsByYear(targetCounty, dataType);
+      } else if (!isNaN(yearNumber)) {
+        result = await getDataByYear(targetCounty, yearNumber, dataType);
+      }
+    } else if (timeScale === 'by_season') {
+      if (year === 'top_analogs') {
+        console.log("In top analogs by season");
+        result = await getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType);
+      } else if (!isNaN(yearNumber)) {
+        result = await getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType);
+      }
+    } else if (timeScale === 'by_month') {
+      if (year === 'top_analogs') {
+        console.log("In top analogs by month");
+        result = await getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType);
+      } else if (!isNaN(yearNumber)) {
+        result = await getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType);
+      }
+    } else {
+      throw new Error('Invalid timeScale');
+    }
+
+    console.log(result.data)
+
+    // Write the response data to a file
+    writeResponseData(targetCounty, timeScale, timeScaleValue, year, dataType, result.data);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1273,25 +1277,56 @@ async function insertCounty(countyID, countyName, stateCode, lat, long) {
 }
 
 
-  // Add state
-  app.get('/addstate/:StateCode/:StateAbbr/:StateName', (req, res) => {
-    // Extract parameters from query string
-    let { StateCode, StateAbbr, StateName } = req.params;
+// Add state
+app.post('/addstate/:StateCode/:StateAbbr/:StateName', async (req, res) => {
+    let connection;
 
-    // Validate parameters
-    if (!StateCode || !StateAbbr || !StateName) {
-        return res.status(400).send('Invalid parameters');
-    }
+    try {
+        // Get a connection from the pool
+        connection = await pool.getConnection();
+        console.log('Database connected successfully');
 
+        // Extract parameters from query string
+        const { StateCode, StateAbbr, StateName } = req.params;
 
-    db.query(insertStateQuery, [StateCode, StateAbbr, StateName], (err, result) => {
-        if(err) {
-            throw err;
+        // Validate parameters
+        if (!StateCode || !StateAbbr || !StateName) {
+            console.log(`Invalid parameters: ${StateCode}, ${StateAbbr}, ${StateName}`);
+            return res.status(400).send('Invalid parameters');
         }
-        console.log(result);
-        res.send('State inserted');
-    });
+
+        // Define your SQL query
+        const insertStateQuery = 'INSERT INTO States (StateCode, StateAbbr, StateName) VALUES (?, ?, ?)';
+
+        // Execute the query
+        connection.execute(insertStateQuery, [StateCode, StateAbbr, StateName], (err, result) => {
+            if (err) {
+                console.error('Error inserting state:', err);
+                return res.status(500).send('Error inserting state');
+            }
+            console.log(result);
+            res.send('State inserted successfully');
+        });
+
+    } catch (error) {
+        if (error.response) {
+            console.error('Error response from server:', error.response.status, error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        console.error('Error details:', error.config);
+        res.status(500).send('Error adding state data.');
+    } finally {
+        if (connection) {
+            // Close the database connection
+            connection.release();
+            console.log('Database connection closed.');
+        }
+    }
 });
+
 
 ///////////////////////////////////////////////////////////////////////////
 // Get all counties

@@ -114,49 +114,52 @@ const stateAbbreviations = {
 
 // // Function to insert state into the database
 // async function insertState(stateCode, stateAbbr, stateName) {
-//     try {
+//     var url = `http://localhost:3000/addstate/${stateCode}/${stateAbbr}/${stateName}`;
+//     var config = {
+//         timeout: 5000  // Timeout after 5000ms (5 seconds)
+//     };
 
-//         const response = await axios.get(`http://localhost:3000/addstate/${stateCode}/${stateAbbr}/${stateName}`);
-//         return response.data;
-//       } catch (error) {
-//         console.error('Error inserting state: ', error);
-//         return error;
-//       }
+//     try {
+//         const response = await axios.post(url, {}, config);
+//         return response;
+//     } catch (error) {
+//         if (error.response) {
+//             console.error('Error response from server:', error.response.status, error.response.data);
+//         } else if (error.request) {
+//             console.error('No response received:', error.request);
+//         } else {
+//             console.error('Error setting up the request:', error.message);
+//         }
+//         console.error('Error details:', error.config);
+//     }
 // }
 
 // // Path to the JSON file
 // const jsonFilePathStates = 'modified_states.json'; 
 
-// // Add all counties
-// fs.readFile(jsonFilePathStates, 'utf8', (err, data) => {
-//     if (err) {
-//         console.error('Error reading file:', err);
-//         return;
-//     }
-
+// // Function to add all states
+// async function addAllStates() {
 //     try {
-//         var data = jsonfile.readFile(jsonFilePathStates);
+//         const data = await fs.readFile(jsonFilePathStates, 'utf8');
+//         const jsonData = JSON.parse(data);
 
-//         //console.log(data.features)
+//         for (const feature of jsonData.features) {
+//             const stateCode = feature.properties.STATECODE;
+//             const stateAbbr = feature.properties.STATEABBR;
+//             const stateName = feature.properties.STATENAME;
 
-//         // Iterate through features
-//         for (var f in data.features) {
-//             //console.log(data.features[f].properties)
-//             var stateName = data.features[f].properties.COUNTYNAME;
-//             var stateCode = data.features[f].properties.STATECODE;
-//             var stateAbbr = data.features[f].properties.STATEABBR;
-
-
-//             // Call function to insert state
-//             insertState(stateCode, stateAbbr, stateName);
+//             await insertState(stateCode, stateAbbr, stateName);
 //         }
 
-//         console.log("All states inserted")
+//         console.log("All states inserted");
 
 //     } catch (err) {
 //         console.error('Error processing states:', err);
 //     }
-// })
+// }
+
+// // Call the function to add all states
+// addAllStates();
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
