@@ -73,8 +73,51 @@ Adjust values as needed for your MySQL setup.
 
 ### 4. Database
 
-- Ensure your MySQL database exists and contains the stored procedures and tables referenced in src/sql/queries.js.  
+- Ensure your MySQL database exists and contains the stored procedures and tables referenced in src/sql/queries.js. [See DATABASE.md](./docs/DATABASE.md)
 - The app relies heavily on stored procedures (e.g., InsertMonthlyPrecipitationWI, CalculateMonthlyPrecipitationDistances, etc.).
+
+#### Initial Database Population
+
+Before running the ingestion pipeline, you need to populate the `States` and `Counties` tables.  
+This repo includes a helper script in the **InitialSetup/** folder that reads from two JSON files and inserts the data through the API endpoints (`/addstate` and `/addcounty`).
+
+A. Ensure the server is running
+
+Start your backend on port **3000**:
+```bash
+npm start
+```
+
+B. Place JSON files
+
+Make sure the following files exist in the InitialSetup folder or update the paths in the script:
+modified_states.json
+modified_counties.json
+
+Each file should have a features array with the expected properties fields.
+
+C. Run the InitialSetup script
+
+From the project root, run:
+
+```bash
+node InitialSetup/setup.js
+```
+
+This script will:
+
+Loop through all entries in modified_states.json and call /addstate
+Loop through all entries in modified_counties.json and call /addcounty
+
+D. Verify
+
+After running, your States and Counties tables in MySQL should be fully populated.
+You can check with:
+
+```sql
+SELECT COUNT(*) FROM States;
+SELECT COUNT(*) FROM Counties;
+```
 
 ### 5. Run the server
 
