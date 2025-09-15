@@ -1,6 +1,6 @@
 /**
  * Helpers for working with NOAA fixed-width line format.
- * This keeps parsing logic isolated for clarity.
+ * 
  */
 
 const { monthPositions } = require('../config/constants');

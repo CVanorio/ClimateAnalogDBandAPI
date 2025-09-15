@@ -76,7 +76,7 @@ function saveLastCheckedDate(tempDate, precipDate) {
 function startNOAACronJob() {
   console.log('Cron job initialized');
 
-  cron.schedule('04 21 * * *', async () => {
+  cron.schedule('56 11 * * *', async () => {
     console.log('[Cron] Checking for NOAA file updates...');
 
     const today = new Date();

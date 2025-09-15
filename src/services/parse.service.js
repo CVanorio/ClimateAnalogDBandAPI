@@ -5,7 +5,7 @@
  * accumulates/flushes climate normals, writes WI monthly/seasonal/yearly data,
  * and copies *_TEMP → final WI tables.
  *
- * Behavior and outputs match the original code.
+ * 
  */
 
 const pool = require('../config/db');

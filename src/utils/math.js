@@ -1,6 +1,6 @@
 /**
  * Math utilities.
- * Mirrors original helper behavior exactly.
+ * 
  */
 
 function roundToTwo(num) {

@@ -1,6 +1,6 @@
 /**
  * All stored procedure / SQL query strings.
- * Logic preserved — only grouped in one module.
+ * 
  */
 
 // Insert data from NOAA files

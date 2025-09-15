@@ -1,6 +1,6 @@
 /**
  * Controller: Data ingestion endpoint (/addallcountydata).
- * Preserves orchestration of NOAA fetch + parse + distance calculations.
+ * 
  */
 const { getLatestNOAAFileLinks, fetchDataFromAPI } = require('../services/noaa.service');
 const { calculateAndInsertEuclideanDistances } = require('../services/distances.service'); // <-- fixed path

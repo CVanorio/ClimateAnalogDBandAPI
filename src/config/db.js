@@ -1,6 +1,6 @@
 /**
  * Database pool configuration.
- * Uses mysql2/promise with same options as original code.
+ * 
  */
 const mysql = require('mysql2/promise');
 

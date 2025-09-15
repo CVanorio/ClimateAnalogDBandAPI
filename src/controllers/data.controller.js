@@ -1,7 +1,7 @@
 /**
  * Controller: Central data endpoint (/getData).
  * Dispatches to DB accessors.
- * Behavior matches original logic, minus writing mock JSON files.
+ * 
  */
 
 const {

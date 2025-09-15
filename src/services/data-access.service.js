@@ -2,7 +2,7 @@
  * Data Access Service
  * ----------------------------------------------------
  * Wraps DB calls used by /getData endpoint.
- * Behavior mirrors original functions (same logs, params, return shape).
+ * 
  */
 
 const pool = require('../config/db');

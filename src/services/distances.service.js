@@ -3,7 +3,7 @@
  * ----------------------------------------------------
  * Creates TEMP distance tables, runs stored procedures to compute
  * monthly/seasonal/yearly distances (precip, temp, combined),
- * and drops TEMP tables when finished — mirroring original behavior.
+ * and drops TEMP tables when finished
  */
 
 const pool = require('../config/db');

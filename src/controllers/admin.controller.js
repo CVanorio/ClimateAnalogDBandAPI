@@ -1,6 +1,6 @@
 /**
  * Controller: Admin endpoints (add county/state; simple fetches).
- * Mirrors original behavior while keeping the same stored procedures and responses.
+ * 
  */
 
 const pool = require('../config/db');
