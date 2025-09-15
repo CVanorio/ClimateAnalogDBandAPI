@@ -144,10 +144,10 @@ Here’s a sample package.json you can adapt for this project:
   "name": "climate-analog-db-api",
   "version": "1.0.0",
   "description": "Node.js + Express backend to ingest NOAA climate data, store it in MySQL, calculate analog distances, and serve results to a frontend via API endpoints.",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "lint": "eslint .",
     "test": "echo \"No tests specified\" && exit 0"
   },
