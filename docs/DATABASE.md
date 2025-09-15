@@ -250,3 +250,22 @@ mysql -u root -p -e "CREATE DATABASE climate_change_app_local;"
 # Import
 mysql -u root -p climate_change_app_local < docs/db-dump.sql
 ```
+> If you share this repo, include docs/db-dump.sql so others can bootstrap easily.
+
+---
+
+## Operational Notes
+
+Idempotent Ingest: Ingestion uses TEMP tables + INSERT IGNORE/REPLACE to avoid duplicate final writes.
+Latest Month Guard: Code checks the latest inserted (Year, Month) to skip old data.
+Cron Updates: src/cron/syncData.js checks NOAA for newer files and hits /addallcountydata if needed.
+Backups: Regularly export schema (and optionally data) for disaster recovery.
+Performance: Distance computations can be heavy — they are batched by time-scale and use TEMP tables internally.
+
+---
+
+## See Also 
+
+[TABLES.md](./TABLES.md) — detailed table columns with types & keys
+
+[PROCEDURES.md](./PROCEDURES.md) — stored procedure signatures & bodies
