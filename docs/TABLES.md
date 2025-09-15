@@ -75,7 +75,7 @@ CREATE TABLE `monthly_combined_distances` (
 ```
 </details>
 
-## `monthly_precipitation_data_wi`
+## `monthly_precipitation_data_TargetState`
 
 **Columns**
 
@@ -96,13 +96,13 @@ CREATE TABLE `monthly_combined_distances` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `monthly_precipitation_data_wi` (
+CREATE TABLE `monthly_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Month` varchar(2) NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Month`),
-  CONSTRAINT `monthly_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `monthly_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>
@@ -208,7 +208,7 @@ CREATE TABLE `monthly_precipitation_norms` (
 ```
 </details>
 
-## `monthly_temperature_data_wi`
+## `monthly_temperature_data_TargetState`
 
 **Columns**
 
@@ -229,13 +229,13 @@ CREATE TABLE `monthly_precipitation_norms` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `monthly_temperature_data_wi` (
+CREATE TABLE `monthly_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Month` varchar(2) NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Month`),
-  CONSTRAINT `monthly_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `monthly_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>
@@ -413,7 +413,7 @@ CREATE TABLE `seasonal_combined_distances` (
 ```
 </details>
 
-## `seasonal_precipitation_data_wi`
+## `seasonal_precipitation_data_TargetState`
 
 **Columns**
 
@@ -434,13 +434,13 @@ CREATE TABLE `seasonal_combined_distances` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `seasonal_precipitation_data_wi` (
+CREATE TABLE `seasonal_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Season` varchar(6) NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Season`),
-  CONSTRAINT `seasonal_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `seasonal_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>
@@ -546,7 +546,7 @@ CREATE TABLE `seasonal_precipitation_norms` (
 ```
 </details>
 
-## `seasonal_temperature_data_wi`
+## `seasonal_temperature_data_TargetState`
 
 **Columns**
 
@@ -567,13 +567,13 @@ CREATE TABLE `seasonal_precipitation_norms` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `seasonal_temperature_data_wi` (
+CREATE TABLE `seasonal_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Season` varchar(6) NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Season`),
-  CONSTRAINT `seasonal_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `seasonal_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>
@@ -706,7 +706,7 @@ CREATE TABLE `States` (
 ```
 </details>
 
-## `WICountyMonthlyPrecip_TEMP`
+## `TargetStateCountyMonthlyPrecip_TEMP`
 
 **Columns**
 
@@ -721,7 +721,7 @@ CREATE TABLE `States` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountyMonthlyPrecip_TEMP` (
+CREATE TABLE `TargetStateCountyMonthlyPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Month` char(2) DEFAULT NULL,
@@ -730,7 +730,7 @@ CREATE TABLE `WICountyMonthlyPrecip_TEMP` (
 ```
 </details>
 
-## `WICountyMonthlyTemp_TEMP`
+## `TargetStateCountyMonthlyTemp_TEMP`
 
 **Columns**
 
@@ -745,7 +745,7 @@ CREATE TABLE `WICountyMonthlyPrecip_TEMP` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountyMonthlyTemp_TEMP` (
+CREATE TABLE `TargetStateCountyMonthlyTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Month` char(2) DEFAULT NULL,
@@ -754,7 +754,7 @@ CREATE TABLE `WICountyMonthlyTemp_TEMP` (
 ```
 </details>
 
-## `WICountySeasonalPrecip_TEMP`
+## `TargetStateCountySeasonalPrecip_TEMP`
 
 **Columns**
 
@@ -769,7 +769,7 @@ CREATE TABLE `WICountyMonthlyTemp_TEMP` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountySeasonalPrecip_TEMP` (
+CREATE TABLE `TargetStateCountySeasonalPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Season` varchar(10) DEFAULT NULL,
@@ -778,7 +778,7 @@ CREATE TABLE `WICountySeasonalPrecip_TEMP` (
 ```
 </details>
 
-## `WICountySeasonalTemp_TEMP`
+## `TargetStateCountySeasonalTemp_TEMP`
 
 **Columns**
 
@@ -793,7 +793,7 @@ CREATE TABLE `WICountySeasonalPrecip_TEMP` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountySeasonalTemp_TEMP` (
+CREATE TABLE `TargetStateCountySeasonalTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Season` varchar(10) DEFAULT NULL,
@@ -802,7 +802,7 @@ CREATE TABLE `WICountySeasonalTemp_TEMP` (
 ```
 </details>
 
-## `WICountyYearlyPrecip_TEMP`
+## `TargetStateCountyYearlyPrecip_TEMP`
 
 **Columns**
 
@@ -816,7 +816,7 @@ CREATE TABLE `WICountySeasonalTemp_TEMP` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountyYearlyPrecip_TEMP` (
+CREATE TABLE `TargetStateCountyYearlyPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Precipitation` float DEFAULT NULL
@@ -824,7 +824,7 @@ CREATE TABLE `WICountyYearlyPrecip_TEMP` (
 ```
 </details>
 
-## `WICountyYearlyTemp_TEMP`
+## `TargetStateCountyYearlyTemp_TEMP`
 
 **Columns**
 
@@ -838,7 +838,7 @@ CREATE TABLE `WICountyYearlyPrecip_TEMP` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `WICountyYearlyTemp_TEMP` (
+CREATE TABLE `TargetStateCountyYearlyTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Temperature` float DEFAULT NULL
@@ -883,7 +883,7 @@ CREATE TABLE `yearly_combined_distances` (
 ```
 </details>
 
-## `yearly_precipitation_data_wi`
+## `yearly_precipitation_data_TargetState`
 
 **Columns**
 
@@ -903,12 +903,12 @@ CREATE TABLE `yearly_combined_distances` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `yearly_precipitation_data_wi` (
+CREATE TABLE `yearly_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`),
-  CONSTRAINT `yearly_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `yearly_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>
@@ -1008,7 +1008,7 @@ CREATE TABLE `yearly_precipitation_norms` (
 ```
 </details>
 
-## `yearly_temperature_data_wi`
+## `yearly_temperature_data_TargetState`
 
 **Columns**
 
@@ -1028,12 +1028,12 @@ CREATE TABLE `yearly_precipitation_norms` (
 <summary>Full DDL</summary>
 
 ```sql
-CREATE TABLE `yearly_temperature_data_wi` (
+CREATE TABLE `yearly_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`),
-  CONSTRAINT `yearly_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `yearly_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 );
 ```
 </details>

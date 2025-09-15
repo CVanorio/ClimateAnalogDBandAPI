@@ -4,7 +4,16 @@
  */
 
 const BASE_URL = 'https://www.ncei.noaa.gov/data/nclimdiv-monthly/access/';
+
+// Climate normal years for calculating norms
+// Current NOAA standard is 1991-2020
 const climateNormalYears = [1991, 2020];
+
+// FIPS state code for target state to process, e.g., '47' for WI
+// State FIPS also found in ClimateAnalogDBandAPI\InitialSetup\StoreStatesAndCounties.js
+// To process all states, set to null
+// To process multiple states, use an array of strings, e.g. ['47', '11'] for WI and Illinois
+TARGET_STATE_CODE =  ['47'];
 
 const monthValues = [
   '01','02','03','04','05','06',
@@ -32,4 +41,5 @@ module.exports = {
   seasonalValues,
   precipDatatype,
   tempDatatype,
+  TARGET_STATE_CODE,
 };

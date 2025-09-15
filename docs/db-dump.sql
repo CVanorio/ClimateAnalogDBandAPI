@@ -69,13 +69,13 @@ CREATE TABLE `States` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountyMonthlyPrecip_TEMP`
+-- Table structure for table `TargetStateCountyMonthlyPrecip_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountyMonthlyPrecip_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountyMonthlyPrecip_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountyMonthlyPrecip_TEMP` (
+CREATE TABLE `TargetStateCountyMonthlyPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Month` char(2) DEFAULT NULL,
@@ -84,13 +84,13 @@ CREATE TABLE `WICountyMonthlyPrecip_TEMP` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountyMonthlyTemp_TEMP`
+-- Table structure for table `TargetStateCountyMonthlyTemp_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountyMonthlyTemp_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountyMonthlyTemp_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountyMonthlyTemp_TEMP` (
+CREATE TABLE `TargetStateCountyMonthlyTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Month` char(2) DEFAULT NULL,
@@ -99,13 +99,13 @@ CREATE TABLE `WICountyMonthlyTemp_TEMP` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountySeasonalPrecip_TEMP`
+-- Table structure for table `TargetStateCountySeasonalPrecip_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountySeasonalPrecip_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountySeasonalPrecip_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountySeasonalPrecip_TEMP` (
+CREATE TABLE `TargetStateCountySeasonalPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Season` varchar(10) DEFAULT NULL,
@@ -114,13 +114,13 @@ CREATE TABLE `WICountySeasonalPrecip_TEMP` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountySeasonalTemp_TEMP`
+-- Table structure for table `TargetStateCountySeasonalTemp_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountySeasonalTemp_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountySeasonalTemp_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountySeasonalTemp_TEMP` (
+CREATE TABLE `TargetStateCountySeasonalTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Season` varchar(10) DEFAULT NULL,
@@ -129,13 +129,13 @@ CREATE TABLE `WICountySeasonalTemp_TEMP` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountyYearlyPrecip_TEMP`
+-- Table structure for table `TargetStateCountyYearlyPrecip_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountyYearlyPrecip_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountyYearlyPrecip_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountyYearlyPrecip_TEMP` (
+CREATE TABLE `TargetStateCountyYearlyPrecip_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Precipitation` float DEFAULT NULL
@@ -143,13 +143,13 @@ CREATE TABLE `WICountyYearlyPrecip_TEMP` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `WICountyYearlyTemp_TEMP`
+-- Table structure for table `TargetStateCountyYearlyTemp_TEMP`
 --
 
-DROP TABLE IF EXISTS `WICountyYearlyTemp_TEMP`;
+DROP TABLE IF EXISTS `TargetStateCountyYearlyTemp_TEMP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `WICountyYearlyTemp_TEMP` (
+CREATE TABLE `TargetStateCountyYearlyTemp_TEMP` (
   `CountyID` int DEFAULT NULL,
   `Year` int DEFAULT NULL,
   `Temperature` float DEFAULT NULL
@@ -178,19 +178,19 @@ CREATE TABLE `monthly_combined_distances` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `monthly_precipitation_data_wi`
+-- Table structure for table `monthly_precipitation_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `monthly_precipitation_data_wi`;
+DROP TABLE IF EXISTS `monthly_precipitation_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `monthly_precipitation_data_wi` (
+CREATE TABLE `monthly_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Month` varchar(2) NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Month`),
-  CONSTRAINT `monthly_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `monthly_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -251,19 +251,19 @@ CREATE TABLE `monthly_precipitation_norms` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `monthly_temperature_data_wi`
+-- Table structure for table `monthly_temperature_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `monthly_temperature_data_wi`;
+DROP TABLE IF EXISTS `monthly_temperature_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `monthly_temperature_data_wi` (
+CREATE TABLE `monthly_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Month` varchar(2) NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Month`),
-  CONSTRAINT `monthly_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `monthly_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -345,19 +345,19 @@ CREATE TABLE `seasonal_combined_distances` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `seasonal_precipitation_data_wi`
+-- Table structure for table `seasonal_precipitation_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `seasonal_precipitation_data_wi`;
+DROP TABLE IF EXISTS `seasonal_precipitation_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `seasonal_precipitation_data_wi` (
+CREATE TABLE `seasonal_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Season` varchar(6) NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Season`),
-  CONSTRAINT `seasonal_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `seasonal_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -418,19 +418,19 @@ CREATE TABLE `seasonal_precipitation_norms` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `seasonal_temperature_data_wi`
+-- Table structure for table `seasonal_temperature_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `seasonal_temperature_data_wi`;
+DROP TABLE IF EXISTS `seasonal_temperature_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `seasonal_temperature_data_wi` (
+CREATE TABLE `seasonal_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Season` varchar(6) NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`,`Season`),
-  CONSTRAINT `seasonal_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `seasonal_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -511,18 +511,18 @@ CREATE TABLE `yearly_combined_distances` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `yearly_precipitation_data_wi`
+-- Table structure for table `yearly_precipitation_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `yearly_precipitation_data_wi`;
+DROP TABLE IF EXISTS `yearly_precipitation_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `yearly_precipitation_data_wi` (
+CREATE TABLE `yearly_precipitation_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Precipitation` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`),
-  CONSTRAINT `yearly_precipitation_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `yearly_precipitation_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -580,18 +580,18 @@ CREATE TABLE `yearly_precipitation_norms` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `yearly_temperature_data_wi`
+-- Table structure for table `yearly_temperature_data_TargetState`
 --
 
-DROP TABLE IF EXISTS `yearly_temperature_data_wi`;
+DROP TABLE IF EXISTS `yearly_temperature_data_TargetState`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `yearly_temperature_data_wi` (
+CREATE TABLE `yearly_temperature_data_TargetState` (
   `CountyID` int NOT NULL,
   `Year` int NOT NULL,
   `Temperature` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`CountyID`,`Year`),
-  CONSTRAINT `yearly_temperature_data_wi_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
+  CONSTRAINT `yearly_temperature_data_TargetState_ibfk_1` FOREIGN KEY (`CountyID`) REFERENCES `Counties` (`CountyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -664,27 +664,27 @@ DELIMITER ;;
 CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyCombinedDistances`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
-    DECLARE v_wiCountyID INT;
+    DECLARE v_TargetStateCountyID INT;
 
     
-    DECLARE v_wiCountyCursor CURSOR FOR 
+    DECLARE v_TargetStateCountyCursor CURSOR FOR 
         SELECT DISTINCT TargetCountyID FROM monthly_precipitation_distances_TEMP;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    OPEN v_wiCountyCursor;
+    OPEN v_TargetStateCountyCursor;
     
     county_loop: LOOP
-        FETCH v_wiCountyCursor INTO v_wiCountyID;
+        FETCH v_TargetStateCountyCursor INTO v_TargetStateCountyID;
         
         IF v_done THEN
             LEAVE county_loop;
         END IF;
         
-        CALL CalculateMonthlyCombinedDistancesForCounty(v_wiCountyID);
+        CALL CalculateMonthlyCombinedDistancesForCounty(v_TargetStateCountyID);
     END LOOP county_loop;
 
-    CLOSE v_wiCountyCursor;
+    CLOSE v_TargetStateCountyCursor;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -722,7 +722,7 @@ BEGIN
             t.Month,
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
         FROM
-            monthly_precipitation_data_wi t
+            monthly_precipitation_data_TargetState t
         CROSS JOIN
             monthly_precipitation_norms a
         WHERE
@@ -752,7 +752,7 @@ BEGIN
             t.Month,
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
         FROM
-            monthly_temperature_data_wi t
+            monthly_temperature_data_TargetState t
         CROSS JOIN
             monthly_temperature_norms a
         WHERE
@@ -829,6 +829,45 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyDistancesForTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyDistancesForTargetState`()
+BEGIN
+    DECLARE v_done INT DEFAULT FALSE;
+    DECLARE v_targetCountyID INT;
+    DECLARE v_countyCursor CURSOR FOR 
+        SELECT CountyID FROM Counties WHERE StateCode = '47';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+    OPEN v_countyCursor;
+
+    
+    county_loop: LOOP
+        FETCH v_countyCursor INTO v_targetCountyID;
+
+        IF v_done THEN
+            LEAVE county_loop;
+        END IF;
+
+        
+        CALL CalculateAllMonthlyDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
+
+    CLOSE v_countyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyDistancesForWI` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -881,24 +920,24 @@ DELIMITER ;;
 CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalCombinedDistances`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
-    DECLARE v_wiCountyID INT;
-    DECLARE v_wiCountyCursor CURSOR FOR 
+    DECLARE v_TargetStateCountyID INT;
+    DECLARE v_TargetStateCountyCursor CURSOR FOR 
         SELECT DISTINCT TargetCountyID FROM seasonal_precipitation_distances_TEMP;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    OPEN v_wiCountyCursor;
+    OPEN v_TargetStateCountyCursor;
     
     county_loop: LOOP
-        FETCH v_wiCountyCursor INTO v_wiCountyID;
+        FETCH v_TargetStateCountyCursor INTO v_TargetStateCountyID;
         
         IF v_done THEN
             LEAVE county_loop;
         END IF;
         
-        CALL CalculateSeasonalCombinedDistancesForCounty(v_wiCountyID);
+        CALL CalculateSeasonalCombinedDistancesForCounty(v_TargetStateCountyID);
     END LOOP county_loop;
 
-    CLOSE v_wiCountyCursor;
+    CLOSE v_TargetStateCountyCursor;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -936,7 +975,7 @@ BEGIN
             t.Season,
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
         FROM
-            seasonal_precipitation_data_wi t
+            seasonal_precipitation_data_TargetState t
         CROSS JOIN
             seasonal_precipitation_norms a
         WHERE
@@ -966,7 +1005,7 @@ BEGIN
             t.Season,
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
         FROM
-            seasonal_temperature_data_wi t
+            seasonal_temperature_data_TargetState t
         CROSS JOIN
             seasonal_temperature_norms a
         WHERE
@@ -1039,6 +1078,45 @@ BEGIN
     DELETE FROM seasonal_temperature_distances 
     WHERE TargetCountyID = p_targetCountyID AND AnalogRank > 150;
 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllSeasonalDistancesForTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalDistancesForTargetState`()
+BEGIN
+    DECLARE v_done INT DEFAULT FALSE;
+    DECLARE v_targetCountyID INT;
+    DECLARE v_countyCursor CURSOR FOR 
+        SELECT CountyID FROM Counties WHERE StateCode = '47';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+    OPEN v_countyCursor;
+
+    
+    county_loop: LOOP
+        FETCH v_countyCursor INTO v_targetCountyID;
+
+        IF v_done THEN
+            LEAVE county_loop;
+        END IF;
+
+        
+        CALL CalculateAllSeasonalDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
+
+    CLOSE v_countyCursor;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1135,7 +1213,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyCombinedDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1148,7 +1226,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Month, Distance 
         FROM monthly_precipitation_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1164,7 +1242,7 @@ BEGIN
         
         SELECT Distance INTO v_tempDistance
         FROM monthly_temperature_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID
+        WHERE TargetCountyID = p_TargetStateCountyID
           AND AnalogCountyID = v_analogCountyID
           AND Year = v_year
           AND Month = v_month
@@ -1178,7 +1256,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Month, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_month, v_combinedDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_combinedDistance
         );
 
       
@@ -1213,7 +1291,7 @@ BEGIN
     t.Year,
     t.Month,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountyMonthlyPrecip_TEMP t
+  FROM TargetStateCountyMonthlyPrecip_TEMP t
   JOIN monthly_precipitation_norms a
     ON a.Month = t.Month;
 
@@ -1237,7 +1315,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyPrecipitationDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1251,9 +1329,9 @@ BEGIN
             t.Year, 
             t.Month, 
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
-        FROM WICountyMonthlyPrecip_TEMP t
+        FROM TargetStateCountyMonthlyPrecip_TEMP t
         CROSS JOIN monthly_precipitation_norms a
-        WHERE t.CountyID = p_WICountyID
+        WHERE t.CountyID = p_TargetStateCountyID
           AND t.Month = a.Month;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
@@ -1272,7 +1350,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Month, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_month, v_precipDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_precipDistance
         );
 
         
@@ -1280,7 +1358,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Month, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_month, v_precipDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_precipDistance
         );
     END LOOP analog_loop;
 
@@ -1313,7 +1391,7 @@ BEGIN
     t.Year,
     t.Month,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountyMonthlyTemp_TEMP t
+  FROM TargetStateCountyMonthlyTemp_TEMP t
   JOIN monthly_temperature_norms a
     ON a.Month = t.Month;
 
@@ -1337,7 +1415,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyTemperatureDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyTemperatureDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1351,9 +1429,9 @@ BEGIN
             t.Year, 
             t.Month, 
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
-        FROM WICountyMonthlyTemp_TEMP t
+        FROM TargetStateCountyMonthlyTemp_TEMP t
         CROSS JOIN monthly_temperature_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Month = a.Month;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Month = a.Month;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1371,7 +1449,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Month, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_month, v_tempDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_tempDistance
         );
 
         
@@ -1379,7 +1457,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Month, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_month, v_tempDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_tempDistance
         );
     END LOOP analog_loop;
 
@@ -1440,7 +1518,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalCombinedDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1453,7 +1531,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Season, Distance 
         FROM seasonal_precipitation_distances_TEMP 
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1469,7 +1547,7 @@ BEGIN
         
         SELECT Distance INTO v_tempDistance
         FROM seasonal_temperature_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID
+        WHERE TargetCountyID = p_TargetStateCountyID
           AND AnalogCountyID = v_analogCountyID
           AND Year = v_year
           AND Season = v_season
@@ -1483,7 +1561,7 @@ BEGIN
             TargetCountyID, AnalogCountyID, Year, Season, Distance
         )
         VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_season, v_combinedDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_combinedDistance
         );
 
     END LOOP analog_loop;
@@ -1517,7 +1595,7 @@ BEGIN
     t.Year,
     t.Season,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountySeasonalPrecip_TEMP t
+  FROM TargetStateCountySeasonalPrecip_TEMP t
   JOIN seasonal_precipitation_norms a
     ON a.Season = t.Season;
 
@@ -1541,7 +1619,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalPrecipitationDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1552,9 +1630,9 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT a.CountyID AS AnalogCountyID, t.Year, t.Season, 
                ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
-        FROM WICountySeasonalPrecip_TEMP t
+        FROM TargetStateCountySeasonalPrecip_TEMP t
         CROSS JOIN seasonal_precipitation_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Season = a.Season;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Season = a.Season;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1571,14 +1649,14 @@ BEGIN
         REPLACE INTO seasonal_precipitation_distances (
             TargetCountyID, AnalogCountyID, Year, Season, Distance
         ) VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_season, v_precipDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_precipDistance
         );
 
         
         REPLACE INTO seasonal_precipitation_distances_TEMP (
             TargetCountyID, AnalogCountyID, Year, Season, Distance
         ) VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_season, v_precipDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_precipDistance
         );
     END LOOP analog_loop;
 
@@ -1611,7 +1689,7 @@ BEGIN
     t.Year,
     t.Season,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountySeasonalTemp_TEMP t
+  FROM TargetStateCountySeasonalTemp_TEMP t
   JOIN seasonal_temperature_norms a
     ON a.Season = t.Season;
 
@@ -1635,7 +1713,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalTemperatureDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalTemperatureDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1646,9 +1724,9 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT a.CountyID AS AnalogCountyID, t.Year, t.Season, 
                ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
-        FROM WICountySeasonalTemp_TEMP t
+        FROM TargetStateCountySeasonalTemp_TEMP t
         CROSS JOIN seasonal_temperature_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Season = a.Season;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Season = a.Season;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1665,14 +1743,14 @@ BEGIN
         REPLACE INTO seasonal_temperature_distances (
             TargetCountyID, AnalogCountyID, Year, Season, Distance
         ) VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_season, v_tempDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_tempDistance
         );
 
         
         REPLACE INTO seasonal_temperature_distances_TEMP (
             TargetCountyID, AnalogCountyID, Year, Season, Distance
         ) VALUES (
-            p_WICountyID, v_analogCountyID, v_year, v_season, v_tempDistance
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_tempDistance
         );
     END LOOP analog_loop;
 
@@ -1730,7 +1808,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyCombinedDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1742,7 +1820,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Distance 
         FROM yearly_precipitation_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -1758,7 +1836,7 @@ BEGIN
         
         SELECT Distance INTO v_tempDistance
         FROM yearly_temperature_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID
+        WHERE TargetCountyID = p_TargetStateCountyID
           AND AnalogCountyID = v_analogCountyID
           AND Year = v_year
         LIMIT 1;
@@ -1768,7 +1846,7 @@ BEGIN
 
         
         REPLACE INTO yearly_combined_distances (TargetCountyID, AnalogCountyID, Year, Distance)
-        VALUES (p_WICountyID, v_analogCountyID, v_year, v_combinedDistance);
+        VALUES (p_TargetStateCountyID, v_analogCountyID, v_year, v_combinedDistance);
     END LOOP analog_loop;
     CLOSE v_analogCursor;
 END ;;
@@ -1799,7 +1877,7 @@ BEGIN
     a.CountyID,
     t.Year,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountyYearlyPrecip_TEMP t
+  FROM TargetStateCountyYearlyPrecip_TEMP t
   CROSS JOIN yearly_precipitation_norms a;
 
   
@@ -1823,7 +1901,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyPrecipitationDistancesForCounty`(p_WICountyID INT)
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1843,17 +1921,17 @@ BEGIN
     
     INSERT INTO TempYearlyPrecipitationDistances (TargetCountyID, AnalogCountyID, Year, Distance, PhysicalDistance)
     SELECT 
-        p_WICountyID AS TargetCountyID, 
+        p_TargetStateCountyID AS TargetCountyID, 
         a.CountyID AS AnalogCountyID, 
         t.Year, 
         ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance,
         pd.PhysicalDistance
     FROM 
-        yearly_precipitation_data_wi t
+        yearly_precipitation_data_TargetState t
     JOIN 
-        yearly_precipitation_norms a ON t.CountyID = p_WICountyID
+        yearly_precipitation_norms a ON t.CountyID = p_TargetStateCountyID
     JOIN 
-        PhysicalDistances pd ON pd.TargetCountyId = p_WICountyID AND pd.AnalogCountyId = a.CountyID;
+        PhysicalDistances pd ON pd.TargetCountyId = p_TargetStateCountyID AND pd.AnalogCountyId = a.CountyID;
 
     
     SET v_rank = 0;
@@ -1901,7 +1979,7 @@ BEGIN
     a.CountyID,
     t.Year,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountyYearlyTemp_TEMP t
+  FROM TargetStateCountyYearlyTemp_TEMP t
   CROSS JOIN yearly_temperature_norms a;
 
   REPLACE INTO yearly_temperature_distances
@@ -1982,9 +2060,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
+            JOIN monthly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
             JOIN monthly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Month = pn.Month
-            JOIN monthly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
+            JOIN monthly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
             JOIN monthly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Month = tn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -2066,9 +2144,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
-            JOIN seasonal_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
+            JOIN seasonal_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
             JOIN seasonal_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Season = pn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2145,8 +2223,8 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
@@ -2224,7 +2302,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
+            JOIN monthly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
             JOIN monthly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Month = pn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -2301,7 +2379,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
+            JOIN seasonal_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
             JOIN seasonal_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Season = pn.Season
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Season = p_Season
@@ -2373,7 +2451,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2450,7 +2528,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
+            JOIN monthly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
             JOIN monthly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Month = tn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -2527,7 +2605,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Season = p_Season
@@ -2599,7 +2677,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2663,9 +2741,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
+            JOIN monthly_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
             JOIN monthly_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Month = spn.Month
-            JOIN monthly_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
+            JOIN monthly_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
             JOIN monthly_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Month = stn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2733,9 +2811,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Season = spd.Season
+            JOIN seasonal_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Season = spd.Season
             JOIN seasonal_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Season = spn.Season
-            JOIN seasonal_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Season = std.Season
+            JOIN seasonal_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Season = std.Season
             JOIN seasonal_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Season = stn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2825,7 +2903,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
+            JOIN monthly_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
             JOIN monthly_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Month = spn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2889,7 +2967,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_precipitation_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_precipitation_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2955,7 +3033,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
+            JOIN monthly_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
             JOIN monthly_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Month = stn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -3019,7 +3097,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -3102,8 +3180,8 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
@@ -3183,7 +3261,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -3262,7 +3340,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -3336,6 +3414,34 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    
+    INSERT INTO monthly_precipitation_data_TargetState (CountyID, Year, Month, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Month, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = VALUES(Precipitation);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyPrecipitationWI` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -3387,6 +3493,34 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormTemperature = VALUES(NormTemperature),
         StdDevTemperature = VALUES(StdDevTemperature);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    
+    INSERT INTO monthly_temperature_data_TargetState (CountyID, Year, Month, Temperature)
+    VALUES (p_CountyID, p_Year, p_Month, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = VALUES(Temperature);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3449,6 +3583,33 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO seasonal_precipitation_data_TargetState (CountyID, Year, Season, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Season, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = p_Precipitation;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalPrecipitationWI` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -3498,6 +3659,33 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormTemperature = p_NormTemperature,
         StdDevTemperature = p_StdDevTemperature;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO seasonal_temperature_data_TargetState (CountyID, Year, Season, Temperature)
+    VALUES (p_CountyID, p_Year, p_Season, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = p_Temperature;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3583,6 +3771,32 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO yearly_precipitation_data_TargetState (CountyID, Year, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = p_Precipitation;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyPrecipitationWI` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -3636,6 +3850,32 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO yearly_temperature_data_TargetState (CountyID, Year, Temperature)
+    VALUES (p_CountyID, p_Year, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = p_Temperature;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyTemperatureWI` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -3672,4 +3912,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-15 12:36:53
+-- Dump completed on 2025-09-15 15:33:00

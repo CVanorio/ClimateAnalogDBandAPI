@@ -11,7 +11,7 @@ It covers the **purpose of each table group**, the **data flow** (ingest → tem
 - [Table Groups](#table-groups)
   - [Reference Tables](#reference-tables)
   - [TEMP Staging Tables (Write-Once Per Run)](#temp-staging-tables-write-once-per-run)
-  - [Final Fact Tables (WI data)](#final-fact-tables-wi-data)
+  - [Final Fact Tables (TargetState data)](#final-fact-tables-TargetState-data)
   - [Norms Tables (1991–2020)](#norms-tables-19912020)
   - [Distance Tables (Euclidean)](#distance-tables-euclidean)
 - [Stored Procedures](#stored-procedures)
@@ -48,41 +48,41 @@ erDiagram
   }
 
   %% ------------------ FINAL FACT TABLES ------------------
-  MONTHLY_PRECIP_WI {
+  MONTHLY_PRECIP_TargetState {
     int CountyID PK
     int Year PK
     string Month PK
     float Precipitation
   }
 
-  MONTHLY_TEMP_WI {
+  MONTHLY_TEMP_TargetState {
     int CountyID PK
     int Year PK
     string Month PK
     float Temperature
   }
 
-  SEASONAL_PRECIP_WI {
+  SEASONAL_PRECIP_TargetState {
     int CountyID PK
     int Year PK
     string Season PK
     float Precipitation
   }
 
-  SEASONAL_TEMP_WI {
+  SEASONAL_TEMP_TargetState {
     int CountyID PK
     int Year PK
     string Season PK
     float Temperature
   }
 
-  YEARLY_PRECIP_WI {
+  YEARLY_PRECIP_TargetState {
     int CountyID PK
     int Year PK
     float Precipitation
   }
 
-  YEARLY_TEMP_WI {
+  YEARLY_TEMP_TargetState {
     int CountyID PK
     int Year PK
     float Temperature
@@ -209,41 +209,41 @@ erDiagram
   }
 
   %% ------------------ TEMP STAGING (no FKs by design) ------------------
-  WI_MNTH_PRECIP_TEMP {
+  TargetState_MNTH_PRECIP_TEMP {
     int CountyID
     int Year
     string Month
     float Precipitation
   }
 
-  WI_MNTH_TEMP_TEMP {
+  TargetState_MNTH_TEMP_TEMP {
     int CountyID
     int Year
     string Month
     float Temperature
   }
 
-  WI_SEAS_PRECIP_TEMP {
+  TargetState_SEAS_PRECIP_TEMP {
     int CountyID
     int Year
     string Season
     float Precipitation
   }
 
-  WI_SEAS_TEMP_TEMP {
+  TargetState_SEAS_TEMP_TEMP {
     int CountyID
     int Year
     string Season
     float Temperature
   }
 
-  WI_YR_PRECIP_TEMP {
+  TargetState_YR_PRECIP_TEMP {
     int CountyID
     int Year
     float Precipitation
   }
 
-  WI_YR_TEMP_TEMP {
+  TargetState_YR_TEMP_TEMP {
     int CountyID
     int Year
     float Temperature
@@ -298,12 +298,12 @@ erDiagram
   %% ------------------ RELATIONSHIPS ------------------
   STATES ||--o{ COUNTIES : has
 
-  COUNTIES ||--o{ MONTHLY_PRECIP_WI : has
-  COUNTIES ||--o{ MONTHLY_TEMP_WI   : has
-  COUNTIES ||--o{ SEASONAL_PRECIP_WI: has
-  COUNTIES ||--o{ SEASONAL_TEMP_WI  : has
-  COUNTIES ||--o{ YEARLY_PRECIP_WI  : has
-  COUNTIES ||--o{ YEARLY_TEMP_WI    : has
+  COUNTIES ||--o{ MONTHLY_PRECIP_TargetState : has
+  COUNTIES ||--o{ MONTHLY_TEMP_TargetState   : has
+  COUNTIES ||--o{ SEASONAL_PRECIP_TargetState: has
+  COUNTIES ||--o{ SEASONAL_TEMP_TargetState  : has
+  COUNTIES ||--o{ YEARLY_PRECIP_TargetState  : has
+  COUNTIES ||--o{ YEARLY_TEMP_TargetState    : has
 
   COUNTIES ||--o{ MONTHLY_PRECIP_NORMS : norms_for
   COUNTIES ||--o{ MONTHLY_TEMP_NORMS   : norms_for
@@ -338,7 +338,7 @@ erDiagram
 
 - **DB Engine:** MySQL
 - **Primary Entities:** Counties (with lat/long), States
-- **Facts:** Precipitation & Temperature for **Monthly**, **Seasonal**, and **Yearly** time scales (Wisconsin-focused final tables).
+- **Facts:** Precipitation & Temperature for **Monthly**, **Seasonal**, and **Yearly** time scales (TargetState-focused final tables).
 - **Norms:** Means & std dev computed over **1991–2020** for monthly/seasonal/yearly, per county.
 - **Distances:** Euclidean distances computed for **precip**, **temp**, and **combined** across monthly/seasonal/yearly.
 - **TEMP Tables:** Used to ingest and transform before copying into final fact tables (keeps ingestion idempotent).
@@ -350,15 +350,15 @@ erDiagram
 1. **Ingest NOAA files** via `/addallcountydata`:
    - Parse fixed-width lines.
    - Look up `CountyID` from `States`/`Counties`.
-   - Write to `WICounty*_*_TEMP` tables (monthly/seasonal/yearly + precip/temp).
+   - Write to `TargetStateCounty*_*_TEMP` tables (monthly/seasonal/yearly + precip/temp).
 
 2. **Compute Norms (1991–2020)**:
    - Accumulate totals & std dev for monthly, seasonal, yearly windows.
    - Insert into `*_norms` tables.
 
 3. **Copy TEMP → Final**:
-   - `WICountyMonthlyPrecip_TEMP` → `monthly_precipitation_data_wi`
-   - `WICountyMonthlyTemp_TEMP` → `monthly_temperature_data_wi`
+   - `TargetStateCountyMonthlyPrecip_TEMP` → `monthly_precipitation_data_TargetState`
+   - `TargetStateCountyMonthlyTemp_TEMP` → `monthly_temperature_data_TargetState`
    - (same for seasonal/yearly)
 
 4. **Compute Distances**:
@@ -390,12 +390,12 @@ erDiagram
 
 Used during ingestion to stage values that are eventually copied into final fact tables. These are **dropped & recreated** each run.
 
-- `WICountyMonthlyPrecip_TEMP`
-- `WICountyMonthlyTemp_TEMP`
-- `WICountySeasonalPrecip_TEMP`
-- `WICountySeasonalTemp_TEMP`
-- `WICountyYearlyPrecip_TEMP`
-- `WICountyYearlyTemp_TEMP`
+- `TargetStateCountyMonthlyPrecip_TEMP`
+- `TargetStateCountyMonthlyTemp_TEMP`
+- `TargetStateCountySeasonalPrecip_TEMP`
+- `TargetStateCountySeasonalTemp_TEMP`
+- `TargetStateCountyYearlyPrecip_TEMP`
+- `TargetStateCountyYearlyTemp_TEMP`
 
 > **Why TEMP?**  
 > - Keeps partial runs isolated  
@@ -404,26 +404,26 @@ Used during ingestion to stage values that are eventually copied into final fact
 
 ---
 
-### Final Fact Tables (WI data)
+### Final Fact Tables (TargetState data)
 
 Hold the canonical time-series after TEMP copy:
 
 - **Monthly**
-  - `monthly_precipitation_data_wi`  
+  - `monthly_precipitation_data_TargetState`  
     - `(CountyID, Year, Month, Precipitation)`
-  - `monthly_temperature_data_wi`  
+  - `monthly_temperature_data_TargetState`  
     - `(CountyID, Year, Month, Temperature)`
 
 - **Seasonal** (meteorological: DJF=**winter**, MAM, JJA, SON)
-  - `seasonal_precipitation_data_wi`  
+  - `seasonal_precipitation_data_TargetState`  
     - `(CountyID, Year, Season, Precipitation)`
-  - `seasonal_temperature_data_wi`  
+  - `seasonal_temperature_data_TargetState`  
     - `(CountyID, Year, Season, Temperature)`
 
 - **Yearly**
-  - `yearly_precipitation_data_wi`  
+  - `yearly_precipitation_data_TargetState`  
     - `(CountyID, Year, Precipitation)`
-  - `yearly_temperature_data_wi`  
+  - `yearly_temperature_data_TargetState`  
     - `(CountyID, Year, Temperature)`
 
 > **Season boundaries (meteorological):**
@@ -488,9 +488,9 @@ Distances computed between a **target county** and **analog counties** for each 
 > Below is a functional grouping that matches the code:
 
 - **Inserts / Norms**
-  - `InsertMonthlyPrecipitationWI`, `InsertMonthlyTemperatureWI`
-  - `InsertSeasonalPrecipitationWI`, `InsertSeasonalTemperatureWI`
-  - `InsertYearlyPrecipitationWI`, `InsertYearlyTemperatureWI`
+  - `InsertMonthlyPrecipitationTargetState`, `InsertMonthlyTemperatureTargetState`
+  - `InsertSeasonalPrecipitationTargetState`, `InsertSeasonalTemperatureTargetState`
+  - `InsertYearlyPrecipitationTargetState`, `InsertYearlyTemperatureTargetState`
   - `InsertMonthlyPrecipitationNorms`, `InsertMonthlyTemperatureNorms`
   - `InsertSeasonalPrecipitationNorms`, `InsertSeasonalTemperatureNorms`
   - `InsertYearlyPrecipitationNorms`, `InsertYearlyTemperatureNorms`
@@ -541,7 +541,7 @@ Distances computed between a **target county** and **analog counties** for each 
 - **Seasons** stored as lowercase strings: `'winter' | 'spring' | 'summer' | 'fall'`.
 - **Invalid NOAA values**: `-9.99` / `-99.90` are **ignored** in aggregates.
 - **TEMP tables** are **dropped and recreated** during each ingest run.
-- **Wisconsin focus**: Final fact tables are suffixed with `_wi` and store WI county time series.
+- **Target State focus**: Final fact tables are suffixed with `_TargetState` and store TargetState county time series.
 
 ---
 

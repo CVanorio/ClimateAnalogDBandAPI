@@ -4,6 +4,8 @@ This project provides a Node.js + Express backend to ingest NOAA climate data, s
 
 It is designed to be modular and production-ready, with a clean folder structure.
 
+> **Note:** This project is designed to work with the frontend repository [ClimateAnalogInteractiveMap](https://github.com/CVanorio/ClimateAnalogInteractiveMap), which provides the interactive user interface to view this data.
+
 ---
 
 ## Project Structure
@@ -232,6 +234,22 @@ npm start
 ```
 ---
 
+## Contact
+
+If you have questions about the data, methods, or how to set up this project, please reach out.
+
+### Wisconsin State Climatology Office (WI SCO)
+- Email: **stclim@aos.wisc.edu**
+- Website: **https://climatology.nelson.wisc.edu/**
+- Notes: The State Climatology Office can advise on NOAA datasets, interpretation, and state-specific climatology.
+
+### Project Author
+- Name: **Courtney Vanorio**
+- Email: **courtney.vanorio@gmail.com**
+- Website: **https://courtneyvanor.io**
+- Role: Project author for the Climate Analog Database & API
+- Notes: Please direct all initial questions to the WI SCO
+
 ## License
 This project is licensed under the Creative Commons Attribution–NonCommercial 4.0 International License.  
 
@@ -239,3 +257,7 @@ You are free to fork and adapt this project for personal or research use.
 Commercial use of any kind requires prior written permission.  
 
 See the full license [here](./LICENSE).
+
+
+ 
+                                                                                                                                                                   

@@ -2,8 +2,8 @@
  * Parse & Insert Service
  * ----------------------------------------------------
  * Creates input TEMP tables, parses NOAA fixed-width lines,
- * accumulates/flushes climate normals, writes WI monthly/seasonal/yearly data,
- * and copies *_TEMP → final WI tables.
+ * accumulates/flushes climate normals, writes TargetState monthly/seasonal/yearly data,
+ * and copies *_TEMP → final TargetState tables.
  *
  * 
  */
@@ -17,6 +17,7 @@ const {
   seasonalValues,
   precipDatatype,
   tempDatatype,
+  TARGET_STATE_CODE,
 } = require('../config/constants');
 
 const {
@@ -38,9 +39,9 @@ const { parseMonthValues } = require('../utils/fixedWidth');
 async function createTempTables(connection) {
   const tables = [
     {
-      name: 'WICountyMonthlyPrecip_TEMP',
+      name: 'TargetStateCountyMonthlyPrecip_TEMP',
       create: `
-        CREATE TABLE WICountyMonthlyPrecip_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountyMonthlyPrecip_TEMP (
           CountyID INT,
           Year INT,
           Month CHAR(2),
@@ -48,9 +49,9 @@ async function createTempTables(connection) {
         );`,
     },
     {
-      name: 'WICountyMonthlyTemp_TEMP',
+      name: 'TargetStateCountyMonthlyTemp_TEMP',
       create: `
-        CREATE TABLE WICountyMonthlyTemp_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountyMonthlyTemp_TEMP (
           CountyID INT,
           Year INT,
           Month CHAR(2),
@@ -58,9 +59,9 @@ async function createTempTables(connection) {
         );`,
     },
     {
-      name: 'WICountySeasonalPrecip_TEMP',
+      name: 'TargetStateCountySeasonalPrecip_TEMP',
       create: `
-        CREATE TABLE WICountySeasonalPrecip_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountySeasonalPrecip_TEMP (
           CountyID INT,
           Year INT,
           Season VARCHAR(10),
@@ -68,9 +69,9 @@ async function createTempTables(connection) {
         );`,
     },
     {
-      name: 'WICountySeasonalTemp_TEMP',
+      name: 'TargetStateCountySeasonalTemp_TEMP',
       create: `
-        CREATE TABLE WICountySeasonalTemp_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountySeasonalTemp_TEMP (
           CountyID INT,
           Year INT,
           Season VARCHAR(10),
@@ -78,18 +79,18 @@ async function createTempTables(connection) {
         );`,
     },
     {
-      name: 'WICountyYearlyPrecip_TEMP',
+      name: 'TargetStateCountyYearlyPrecip_TEMP',
       create: `
-        CREATE TABLE WICountyYearlyPrecip_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountyYearlyPrecip_TEMP (
           CountyID INT,
           Year INT,
           Precipitation FLOAT
         );`,
     },
     {
-      name: 'WICountyYearlyTemp_TEMP',
+      name: 'TargetStateCountyYearlyTemp_TEMP',
       create: `
-        CREATE TABLE WICountyYearlyTemp_TEMP (
+        CREATE TABLE IF NOT EXISTS TargetStateCountyYearlyTemp_TEMP (
           CountyID INT,
           Year INT,
           Temperature FLOAT
@@ -105,12 +106,12 @@ async function createTempTables(connection) {
 }
 
 /**
- * Find most recent (Year, Month) already in WI precip table.
+ * Find most recent (Year, Month) already in TargetState precip table.
  */
 async function getLatestInsertedMonth(connection) {
   const [rows] = await connection.execute(`
     SELECT Year, Month
-    FROM monthly_precipitation_data_wi
+    FROM monthly_precipitation_data_TargetState
     ORDER BY Year DESC, CAST(Month AS UNSIGNED) DESC
     LIMIT 1;
   `);
@@ -120,26 +121,26 @@ async function getLatestInsertedMonth(connection) {
 }
 
 /**
- * Copy input TEMP → final WI tables (temp vs precip).
+ * Copy input TEMP → final TargetState tables (temp vs precip).
  */
-async function copyTempToDataWITables(connection, dataType) {
+async function copyTempToDataTargetStateTables(connection, dataType) {
   const isTemp = dataType === tempDatatype;
 
   if (isTemp) {
     const tempTables = [
       {
-        temp: 'WICountyMonthlyTemp_TEMP',
-        target: 'monthly_temperature_data_wi',
+        temp: 'TargetStateCountyMonthlyTemp_TEMP',
+        target: 'monthly_temperature_data_TargetState',
         columns: '(CountyID, Year, Month, Temperature)',
       },
       {
-        temp: 'WICountySeasonalTemp_TEMP',
-        target: 'seasonal_temperature_data_wi',
+        temp: 'TargetStateCountySeasonalTemp_TEMP',
+        target: 'seasonal_temperature_data_TargetState',
         columns: '(CountyID, Year, Season, Temperature)',
       },
       {
-        temp: 'WICountyYearlyTemp_TEMP',
-        target: 'yearly_temperature_data_wi',
+        temp: 'TargetStateCountyYearlyTemp_TEMP',
+        target: 'yearly_temperature_data_TargetState',
         columns: '(CountyID, Year, Temperature)',
       },
     ];
@@ -152,18 +153,18 @@ async function copyTempToDataWITables(connection, dataType) {
   } else {
     const precipTables = [
       {
-        temp: 'WICountyMonthlyPrecip_TEMP',
-        target: 'monthly_precipitation_data_wi',
+        temp: 'TargetStateCountyMonthlyPrecip_TEMP',
+        target: 'monthly_precipitation_data_TargetState',
         columns: '(CountyID, Year, Month, Precipitation)',
       },
       {
-        temp: 'WICountySeasonalPrecip_TEMP',
-        target: 'seasonal_precipitation_data_wi',
+        temp: 'TargetStateCountySeasonalPrecip_TEMP',
+        target: 'seasonal_precipitation_data_TargetState',
         columns: '(CountyID, Year, Season, Precipitation)',
       },
       {
-        temp: 'WICountyYearlyPrecip_TEMP',
-        target: 'yearly_precipitation_data_wi',
+        temp: 'TargetStateCountyYearlyPrecip_TEMP',
+        target: 'yearly_precipitation_data_TargetState',
         columns: '(CountyID, Year, Precipitation)',
       },
     ];
@@ -368,16 +369,16 @@ async function calculateAndInsertSeasonalNorms(yearData, normProperties, connect
   }
 }
 
-/* ===== WI data insert helpers (monthly / seasonal / yearly) ===== */
+/* ===== TargetState data insert helpers (monthly / seasonal / yearly) ===== */
 
-async function insertWIMonthlyData(yearData, connection, latestYearMonth) {
+async function insertTargetStateMonthlyData(yearData, connection, latestYearMonth) {
   let query = '';
   if (yearData.DataType === precipDatatype) {
     query =
-      'REPLACE INTO WICountyMonthlyPrecip_TEMP (CountyID, Year, Month, Precipitation) VALUES (?, ?, ?, ?);';
+      'REPLACE INTO TargetStateCountyMonthlyPrecip_TEMP (CountyID, Year, Month, Precipitation) VALUES (?, ?, ?, ?);';
   } else if (yearData.DataType === tempDatatype) {
     query =
-      'REPLACE INTO WICountyMonthlyTemp_TEMP (CountyID, Year, Month, Temperature) VALUES (?, ?, ?, ?);';
+      'REPLACE INTO TargetStateCountyMonthlyTemp_TEMP (CountyID, Year, Month, Temperature) VALUES (?, ?, ?, ?);';
   }
 
   for (let i = 0; i < yearData.MonthData.length; i++) {
@@ -397,14 +398,14 @@ async function insertWIMonthlyData(yearData, connection, latestYearMonth) {
   }
 }
 
-async function insertWIYearlyData(yearData, connection) {
+async function insertTargetStateYearlyData(yearData, connection) {
   let query = '';
   if (yearData.DataType === precipDatatype) {
     query =
-      'REPLACE INTO WICountyYearlyPrecip_TEMP (CountyID, Year, Precipitation) VALUES (?, ?, ?);';
+      'REPLACE INTO TargetStateCountyYearlyPrecip_TEMP (CountyID, Year, Precipitation) VALUES (?, ?, ?);';
   } else if (yearData.DataType === tempDatatype) {
     query =
-      'REPLACE INTO WICountyYearlyTemp_TEMP (CountyID, Year, Temperature) VALUES (?, ?, ?);';
+      'REPLACE INTO TargetStateCountyYearlyTemp_TEMP (CountyID, Year, Temperature) VALUES (?, ?, ?);';
   }
 
   let yearTotal = 0;
@@ -420,7 +421,7 @@ async function insertWIYearlyData(yearData, connection) {
   await connection.execute(query, params);
 }
 
-async function insertWISeasonalData(
+async function insertTargetStateSeasonalData(
   yearData,
   prevDecember,
   currentYear,
@@ -431,10 +432,10 @@ async function insertWISeasonalData(
   let query = '';
   if (yearData.DataType === precipDatatype) {
     query =
-      'REPLACE INTO WICountySeasonalPrecip_TEMP (CountyID, Year, Season, Precipitation) VALUES (?, ?, ?, ?);';
+      'REPLACE INTO TargetStateCountySeasonalPrecip_TEMP (CountyID, Year, Season, Precipitation) VALUES (?, ?, ?, ?);';
   } else if (yearData.DataType === tempDatatype) {
     query =
-      'REPLACE INTO WICountySeasonalTemp_TEMP (CountyID, Year, Season, Temperature) VALUES (?, ?, ?, ?);';
+      'REPLACE INTO TargetStateCountySeasonalTemp_TEMP (CountyID, Year, Season, Temperature) VALUES (?, ?, ?, ?);';
   }
 
   let winterTotal = prevDecember;
@@ -533,10 +534,10 @@ async function insertWISeasonalData(
  * Main: parse file & insert
  * - Creates input TEMP tables
  * - Iterates lines, accumulates normals in window
- * - Inserts WI data for current year vs historical
- * - Copies *_TEMP → final WI tables (using last seen DataType)
+ * - Inserts TargetState data for current year vs historical
+ * - Copies *_TEMP → final TargetState tables (using last seen DataType)
  */
-async function parseAndInsertAllNormsAndWIData(responseData) {
+async function parseAndInsertAllNormsAndTargetStateData(responseData) {
   let connection;
   let lastDataType = null; // to decide which set of final tables to copy into
 
@@ -548,8 +549,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
 
     const latestYearMonth = await getLatestInsertedMonth(connection);
     console.log(
-      `Latest inserted (year/month): ${latestYearMonth?.year || 'none'}/${
-        latestYearMonth?.month || 'none'
+      `Latest inserted (year/month): ${latestYearMonth?.year || 'none'}/${latestYearMonth?.month || 'none'
       }`,
     );
 
@@ -574,6 +574,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
       lastDataType = yearData.DataType; // remember last seen datatype
 
       // skip if we already have full year up to Dec
+      // FOR NEW CLIMATOLOGY NORMALS, we want to process all years, so comment this block out
       if (
         latestYearMonth &&
         (yearData.Year < latestYearMonth.year ||
@@ -585,7 +586,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
 
       if (yearData.Year === 1895) prevDecember = null;
 
-      // normals window
+      // normals TargetStatendow
       if (
         yearData.Year >= climateNormalYears[0] &&
         yearData.Year <= climateNormalYears[1]
@@ -598,10 +599,15 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
         );
       }
 
-      // WI data: stateCode '47' and only for the most recent DB year
-      if (yearData.StateCode === '47' && yearData.Year === latestYearMonth.year) {
-        await insertWIMonthlyData(yearData, connection, latestYearMonth);
-        await insertWISeasonalData(
+      // If TARGET_STATE_CODE is null => process ALL states.
+      // Otherwise only process the matching state code(s).
+      const isTargetState =
+        TARGET_STATE_CODE == null ||
+        (Array.isArray(TARGET_STATE_CODE) ? TARGET_STATE_CODE.includes(yearData.StateCode) : yearData.StateCode === TARGET_STATE_CODE);
+
+      if (isTargetState && yearData.Year === latestYearMonth.year) {
+        await insertTargetStateMonthlyData(yearData, connection, latestYearMonth);
+        await insertTargetStateSeasonalData(
           yearData,
           prevDecember,
           currentYear,
@@ -610,7 +616,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
           latestYearMonth,
         );
         if (yearData.Year !== currentYear) {
-          await insertWIYearlyData(yearData, connection);
+          await insertTargetStateYearlyData(yearData, connection);
         }
       }
 
@@ -619,7 +625,7 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
 
     // Use the correct (last seen) DataType for copying temp → final
     if (lastDataType) {
-      await copyTempToDataWITables(connection, lastDataType);
+      await copyTempToDataTargetStateTables(connection, lastDataType);
     }
 
     console.log('All data inserted successfully.');
@@ -636,5 +642,5 @@ async function parseAndInsertAllNormsAndWIData(responseData) {
 }
 
 module.exports = {
-  parseAndInsertAllNormsAndWIData,
+  parseAndInsertAllNormsAndTargetStateData,
 };

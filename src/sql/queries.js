@@ -5,20 +5,20 @@
 
 // Insert data from NOAA files
 // Monthly
-const insertWICountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitationWI(?, ?, ?, ?);';
-const insertWICountyMonthlyTempQuery   = 'CALL InsertMonthlyTemperatureWI(?, ?, ?, ?);';
+const insertTargetStateCountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitationTargetState(?, ?, ?, ?);';
+const insertTargetStateCountyMonthlyTempQuery   = 'CALL InsertMonthlyTemperatureTargetState(?, ?, ?, ?);';
 const insertMonthlyPrecipNormsQuery    = 'CALL InsertMonthlyPrecipitationNorms(?, ?, ?, ?);';
 const insertMonthlyTempNormsQuery      = 'CALL InsertMonthlyTemperatureNorms(?, ?, ?, ?);';
 
 // Yearly
-const insertWICountyYearlyPrecipQuery  = 'CALL InsertYearlyPrecipitationWI(?, ?, ?);';
-const insertWICountyYearlyTempQuery    = 'CALL InsertYearlyTemperatureWI(?, ?, ?);';
+const insertTargetStateCountyYearlyPrecipQuery  = 'CALL InsertYearlyPrecipitationTargetState(?, ?, ?);';
+const insertTargetStateCountyYearlyTempQuery    = 'CALL InsertYearlyTemperatureTargetState(?, ?, ?);';
 const insertYearlyPrecipNormsQuery     = 'CALL InsertYearlyPrecipitationNorms(?, ?, ?);';
 const insertYearlyTempNormsQuery       = 'CALL InsertYearlyTemperatureNorms(?, ?, ?);';
 
 // Seasonal
-const insertWICountySeasonalPrecipQuery = 'CALL InsertSeasonalPrecipitationWI(?, ?, ?, ?)';
-const insertWICountySeasonalTempQuery   = 'CALL InsertSeasonalTemperatureWI(?, ?, ?, ?)';
+const insertTargetStateCountySeasonalPrecipQuery = 'CALL InsertSeasonalPrecipitationTargetState(?, ?, ?, ?)';
+const insertTargetStateCountySeasonalTempQuery   = 'CALL InsertSeasonalTemperatureTargetState(?, ?, ?, ?)';
 const insertSeasonalPrecipNormsQuery    = 'CALL InsertSeasonalPrecipitationNorms(?, ?, ?, ?)';
 const insertSeasonalTempNormsQuery      = 'CALL InsertSeasonalTemperatureNorms(?, ?, ?, ?)';
 
@@ -75,16 +75,16 @@ const insertCountyQuery                = 'CALL InsertCounty(?, ?, ?, ?, ?)';
 const insertStateQuery                 = 'CALL InsertState(?, ?, ?)';
 
 module.exports = {
-  insertWICountyMonthlyPrecipQuery,
-  insertWICountyMonthlyTempQuery,
+  insertTargetStateCountyMonthlyPrecipQuery,
+  insertTargetStateCountyMonthlyTempQuery,
   insertMonthlyPrecipNormsQuery,
   insertMonthlyTempNormsQuery,
-  insertWICountyYearlyPrecipQuery,
-  insertWICountyYearlyTempQuery,
+  insertTargetStateCountyYearlyPrecipQuery,
+  insertTargetStateCountyYearlyTempQuery,
   insertYearlyPrecipNormsQuery,
   insertYearlyTempNormsQuery,
-  insertWICountySeasonalPrecipQuery,
-  insertWICountySeasonalTempQuery,
+  insertTargetStateCountySeasonalPrecipQuery,
+  insertTargetStateCountySeasonalTempQuery,
   insertSeasonalPrecipNormsQuery,
   insertSeasonalTempNormsQuery,
   calculateMonthlyPrecipDistancesQuery,

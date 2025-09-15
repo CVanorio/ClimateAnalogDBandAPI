@@ -14,18 +14,18 @@ PROCEDURE CalculateAllMonthlyCombinedDistances()
 ```sql
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
-    DECLARE v_wiCountyID INT;
+    DECLARE v_TargetStateCountyID INT;
 
     
-    DECLARE v_wiCountyCursor CURSOR FOR 
+    DECLARE v_TargetStateCountyCursor CURSOR FOR 
         SELECT DISTINCT TargetCountyID FROM monthly_precipitation_distances_TEMP;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    OPEN v_wiCountyCursor;
+    OPEN v_TargetStateCountyCursor;
     
     county_loop: LOOP
-        FETCH v_wiCountyCursor INTO v_wiCountyID;
+        FETCH v_TargetStateCountyCursor INTO v_TargetStateCountyID;
         
         IF v_done THEN
             LEAVE county_loop;
@@ -65,7 +65,7 @@ BEGIN
             t.Month,
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
         FROM
-            monthly_precipitation_data_wi t
+            monthly_precipitation_data_TargetState t
         CROSS JOIN
             monthly_precipitation_norms a
         WHERE
@@ -95,7 +95,7 @@ BEGIN
             t.Month,
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
         FROM
-            monthly_temperature_data_wi t
+            monthly_temperature_data_TargetState t
         CROSS JOIN
             monthly_temperature_norms a
         WHERE
@@ -170,12 +170,12 @@ END
 ```
 </details>
 
-## `CalculateAllMonthlyDistancesForWI`
+## `CalculateAllMonthlyDistancesForTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE CalculateAllMonthlyDistancesForWI()
+PROCEDURE CalculateAllMonthlyDistancesForTargetState()
 ```
 
 <details>
@@ -215,15 +215,15 @@ PROCEDURE CalculateAllSeasonalCombinedDistances()
 ```sql
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
-    DECLARE v_wiCountyID INT;
-    DECLARE v_wiCountyCursor CURSOR FOR 
+    DECLARE v_TargetStateCountyID INT;
+    DECLARE v_TargetStateCountyCursor CURSOR FOR 
         SELECT DISTINCT TargetCountyID FROM seasonal_precipitation_distances_TEMP;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    OPEN v_wiCountyCursor;
+    OPEN v_TargetStateCountyCursor;
     
     county_loop: LOOP
-        FETCH v_wiCountyCursor INTO v_wiCountyID;
+        FETCH v_TargetStateCountyCursor INTO v_TargetStateCountyID;
         
         IF v_done THEN
             LEAVE county_loop;
@@ -263,7 +263,7 @@ BEGIN
             t.Season,
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
         FROM
-            seasonal_precipitation_data_wi t
+            seasonal_precipitation_data_TargetState t
         CROSS JOIN
             seasonal_precipitation_norms a
         WHERE
@@ -293,7 +293,7 @@ BEGIN
             t.Season,
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
         FROM
-            seasonal_temperature_data_wi t
+            seasonal_temperature_data_TargetState t
         CROSS JOIN
             seasonal_temperature_norms a
         WHERE
@@ -370,12 +370,12 @@ END
 ```
 </details>
 
-## `CalculateAllSeasonalDistancesForWI`
+## `CalculateAllSeasonalDistancesForTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE CalculateAllSeasonalDistancesForWI()
+PROCEDURE CalculateAllSeasonalDistancesForTargetState()
 ```
 
 <details>
@@ -446,7 +446,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateMonthlyCombinedDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateMonthlyCombinedDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -465,7 +465,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Month, Distance 
         FROM monthly_precipitation_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -503,7 +503,7 @@ BEGIN
     t.Year,
     t.Month,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountyMonthlyPrecip_TEMP t
+  FROM TargetStateCountyMonthlyPrecip_TEMP t
   JOIN monthly_precipitation_norms a
     ON a.Month = t.Month;
 
@@ -520,7 +520,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateMonthlyPrecipitationDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateMonthlyPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -540,9 +540,9 @@ BEGIN
             t.Year, 
             t.Month, 
             ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
-        FROM WICountyMonthlyPrecip_TEMP t
+        FROM TargetStateCountyMonthlyPrecip_TEMP t
         CROSS JOIN monthly_precipitation_norms a
-        WHERE t.CountyID = p_WICountyID
+        WHERE t.CountyID = p_TargetStateCountyID
           AND t.Month = a.Month;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
@@ -581,7 +581,7 @@ BEGIN
     t.Year,
     t.Month,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountyMonthlyTemp_TEMP t
+  FROM TargetStateCountyMonthlyTemp_TEMP t
   JOIN monthly_temperature_norms a
     ON a.Month = t.Month;
 
@@ -598,7 +598,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateMonthlyTemperatureDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateMonthlyTemperatureDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -618,9 +618,9 @@ BEGIN
             t.Year, 
             t.Month, 
             ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
-        FROM WICountyMonthlyTemp_TEMP t
+        FROM TargetStateCountyMonthlyTemp_TEMP t
         CROSS JOIN monthly_temperature_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Month = a.Month;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Month = a.Month;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -679,7 +679,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateSeasonalCombinedDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateSeasonalCombinedDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -698,7 +698,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Season, Distance 
         FROM seasonal_precipitation_distances_TEMP 
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -736,7 +736,7 @@ BEGIN
     t.Year,
     t.Season,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountySeasonalPrecip_TEMP t
+  FROM TargetStateCountySeasonalPrecip_TEMP t
   JOIN seasonal_precipitation_norms a
     ON a.Season = t.Season;
 
@@ -753,7 +753,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateSeasonalPrecipitationDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateSeasonalPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -770,9 +770,9 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT a.CountyID AS AnalogCountyID, t.Year, t.Season, 
                ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance
-        FROM WICountySeasonalPrecip_TEMP t
+        FROM TargetStateCountySeasonalPrecip_TEMP t
         CROSS JOIN seasonal_precipitation_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Season = a.Season;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Season = a.Season;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -810,7 +810,7 @@ BEGIN
     t.Year,
     t.Season,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountySeasonalTemp_TEMP t
+  FROM TargetStateCountySeasonalTemp_TEMP t
   JOIN seasonal_temperature_norms a
     ON a.Season = t.Season;
 
@@ -827,7 +827,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateSeasonalTemperatureDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateSeasonalTemperatureDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -844,9 +844,9 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT a.CountyID AS AnalogCountyID, t.Year, t.Season, 
                ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2) AS Distance
-        FROM WICountySeasonalTemp_TEMP t
+        FROM TargetStateCountySeasonalTemp_TEMP t
         CROSS JOIN seasonal_temperature_norms a
-        WHERE t.CountyID = p_WICountyID AND t.Season = a.Season;
+        WHERE t.CountyID = p_TargetStateCountyID AND t.Season = a.Season;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -902,7 +902,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateYearlyCombinedDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateYearlyCombinedDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -920,7 +920,7 @@ BEGIN
     DECLARE v_analogCursor CURSOR FOR 
         SELECT AnalogCountyID, Year, Distance 
         FROM yearly_precipitation_distances_TEMP
-        WHERE TargetCountyID = p_WICountyID;
+        WHERE TargetCountyID = p_TargetStateCountyID;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
@@ -958,7 +958,7 @@ BEGIN
     a.CountyID,
     t.Year,
     ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2)
-  FROM WICountyYearlyPrecip_TEMP t
+  FROM TargetStateCountyYearlyPrecip_TEMP t
   CROSS JOIN yearly_precipitation_norms a;
 
   
@@ -975,7 +975,7 @@ END
 **Signature**
 
 ```sql
-PROCEDURE CalculateYearlyPrecipitationDistancesForCounty(p_WICountyID INT)
+PROCEDURE CalculateYearlyPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
 ```
 
 <details>
@@ -1001,17 +1001,17 @@ BEGIN
     
     INSERT INTO TempYearlyPrecipitationDistances (TargetCountyID, AnalogCountyID, Year, Distance, PhysicalDistance)
     SELECT 
-        p_WICountyID AS TargetCountyID, 
+        p_TargetStateCountyID AS TargetCountyID, 
         a.CountyID AS AnalogCountyID, 
         t.Year, 
         ROUND(SQRT(POW((a.NormPrecipitation - t.Precipitation), 2) / POW(a.StdDevPrecipitation, 2)), 2) AS Distance,
         pd.PhysicalDistance
     FROM 
-        yearly_precipitation_data_wi t
+        yearly_precipitation_data_TargetState t
     JOIN 
-        yearly_precipitation_norms a ON t.CountyID = p_WICountyID
+        yearly_precipitation_norms a ON t.CountyID = p_TargetStateCountyID
     JOIN 
-        PhysicalDistances pd ON pd.TargetCountyId = p_WICountyID AND pd.AnalogCountyId = a.CountyID;
+        PhysicalDistances pd ON pd.TargetCountyId = p_TargetStateCountyID AND pd.AnalogCountyId = a.CountyID;
 
     
     SET v_rank = 0;
@@ -1058,7 +1058,7 @@ BEGIN
     a.CountyID,
     t.Year,
     ROUND(SQRT(POW((a.NormTemperature - t.Temperature), 2) / POW(a.StdDevTemperature, 2)), 2)
-  FROM WICountyYearlyTemp_TEMP t
+  FROM TargetStateCountyYearlyTemp_TEMP t
   CROSS JOIN yearly_temperature_norms a;
 
   REPLACE INTO yearly_temperature_distances
@@ -1138,9 +1138,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
+            JOIN monthly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
             JOIN monthly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Month = pn.Month
-            JOIN monthly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
+            JOIN monthly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
             JOIN monthly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Month = tn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -1220,9 +1220,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
-            JOIN seasonal_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
+            JOIN seasonal_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
             JOIN seasonal_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Season = pn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -1298,8 +1298,8 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
@@ -1375,7 +1375,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
+            JOIN monthly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Month = pd.Month
             JOIN monthly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Month = pn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -1450,7 +1450,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
+            JOIN seasonal_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year AND d.Season = pd.Season
             JOIN seasonal_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID AND d.Season = pn.Season
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Season = p_Season
@@ -1521,7 +1521,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -1596,7 +1596,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
+            JOIN monthly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Month = td.Month
             JOIN monthly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Month = tn.Month
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Month = p_Month
@@ -1671,7 +1671,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             WHERE d.TargetCountyID = v_TargetCountyID 
               AND d.Season = p_Season
@@ -1742,7 +1742,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -1804,9 +1804,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
+            JOIN monthly_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
             JOIN monthly_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Month = spn.Month
-            JOIN monthly_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
+            JOIN monthly_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
             JOIN monthly_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Month = stn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -1872,9 +1872,9 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Season = spd.Season
+            JOIN seasonal_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Season = spd.Season
             JOIN seasonal_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Season = spn.Season
-            JOIN seasonal_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Season = std.Season
+            JOIN seasonal_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Season = std.Season
             JOIN seasonal_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Season = stn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -1961,7 +1961,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_precipitation_data_wi spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
+            JOIN monthly_precipitation_data_TargetState spd ON d.TargetCountyID = spd.CountyID AND d.Year = spd.Year AND d.Month = spd.Month
             JOIN monthly_precipitation_norms spn ON d.AnalogCountyID = spn.CountyID AND d.Month = spn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2023,7 +2023,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_precipitation_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_precipitation_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_precipitation_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2087,7 +2087,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN monthly_temperature_data_wi std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
+            JOIN monthly_temperature_data_TargetState std ON d.TargetCountyID = std.CountyID AND d.Year = std.Year AND d.Month = std.Month
             JOIN monthly_temperature_norms stn ON d.AnalogCountyID = stn.CountyID AND d.Month = stn.Month
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2149,7 +2149,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN seasonal_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
+            JOIN seasonal_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year AND d.Season = td.Season
             JOIN seasonal_temperature_norms tn ON d.AnalogCountyID = tn.CountyID AND d.Season = tn.Season
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyId AND d.AnalogCountyID = pdist.AnalogCountyId
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2230,8 +2230,8 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
@@ -2309,7 +2309,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_precipitation_data_wi pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
+            JOIN yearly_precipitation_data_TargetState pd ON d.TargetCountyID = pd.CountyID AND d.Year = pd.Year
             JOIN yearly_precipitation_norms pn ON d.AnalogCountyID = pn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2386,7 +2386,7 @@ BEGIN
             JOIN Counties tc ON d.TargetCountyID = tc.CountyID
             JOIN Counties ac ON d.AnalogCountyID = ac.CountyID
             JOIN States st ON ac.StateCode = st.StateCode
-            JOIN yearly_temperature_data_wi td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
+            JOIN yearly_temperature_data_TargetState td ON d.TargetCountyID = td.CountyID AND d.Year = td.Year
             JOIN yearly_temperature_norms tn ON d.AnalogCountyID = tn.CountyID
             JOIN PhysicalDistances pdist ON d.TargetCountyID = pdist.TargetCountyID AND d.AnalogCountyID = pdist.AnalogCountyID
             WHERE d.TargetCountyID = v_TargetCountyID 
@@ -2454,12 +2454,12 @@ END
 ```
 </details>
 
-## `InsertMonthlyPrecipitationWI`
+## `InsertMonthlyPrecipitationTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertMonthlyPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
+PROCEDURE InsertMonthlyPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
 ```
 
 <details>
@@ -2471,7 +2471,7 @@ PROCEDURE InsertMonthlyPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_Mo
 )
 BEGIN
     
-    INSERT INTO monthly_precipitation_data_wi (CountyID, Year, Month, Precipitation)
+    INSERT INTO monthly_precipitation_data_TargetState (CountyID, Year, Month, Precipitation)
     VALUES (p_CountyID, p_Year, p_Month, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = VALUES(Precipitation);
@@ -2506,12 +2506,12 @@ END
 ```
 </details>
 
-## `InsertMonthlyTemperatureWI`
+## `InsertMonthlyTemperatureTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertMonthlyTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
+PROCEDURE InsertMonthlyTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
 ```
 
 <details>
@@ -2523,7 +2523,7 @@ PROCEDURE InsertMonthlyTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Mont
 )
 BEGIN
     
-    INSERT INTO monthly_temperature_data_wi (CountyID, Year, Month, Temperature)
+    INSERT INTO monthly_temperature_data_TargetState (CountyID, Year, Month, Temperature)
     VALUES (p_CountyID, p_Year, p_Month, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = VALUES(Temperature);
@@ -2557,12 +2557,12 @@ END
 ```
 </details>
 
-## `InsertSeasonalPrecipitationWI`
+## `InsertSeasonalPrecipitationTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertSeasonalPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
+PROCEDURE InsertSeasonalPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
 ```
 
 <details>
@@ -2573,7 +2573,7 @@ PROCEDURE InsertSeasonalPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_S
     IN p_Precipitation DECIMAL(5, 2)
 )
 BEGIN
-    INSERT INTO seasonal_precipitation_data_wi (CountyID, Year, Season, Precipitation)
+    INSERT INTO seasonal_precipitation_data_TargetState (CountyID, Year, Season, Precipitation)
     VALUES (p_CountyID, p_Year, p_Season, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = p_Precipitation;
@@ -2607,12 +2607,12 @@ END
 ```
 </details>
 
-## `InsertSeasonalTemperatureWI`
+## `InsertSeasonalTemperatureTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertSeasonalTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
+PROCEDURE InsertSeasonalTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
 ```
 
 <details>
@@ -2623,7 +2623,7 @@ PROCEDURE InsertSeasonalTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Sea
     IN p_Temperature DECIMAL(5, 2)
 )
 BEGIN
-    INSERT INTO seasonal_temperature_data_wi (CountyID, Year, Season, Temperature)
+    INSERT INTO seasonal_temperature_data_TargetState (CountyID, Year, Season, Temperature)
     VALUES (p_CountyID, p_Year, p_Season, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = p_Temperature;
@@ -2680,12 +2680,12 @@ END
 ```
 </details>
 
-## `InsertYearlyPrecipitationWI`
+## `InsertYearlyPrecipitationTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertYearlyPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_Precipitation DECIMAL(5, 2)
+PROCEDURE InsertYearlyPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Precipitation DECIMAL(5, 2)
 ```
 
 <details>
@@ -2694,7 +2694,7 @@ PROCEDURE InsertYearlyPrecipitationWI(IN p_CountyID INT, IN p_Year INT, IN p_Pre
 ```sql
 )
 BEGIN
-    INSERT INTO yearly_precipitation_data_wi (CountyID, Year, Precipitation)
+    INSERT INTO yearly_precipitation_data_TargetState (CountyID, Year, Precipitation)
     VALUES (p_CountyID, p_Year, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = p_Precipitation;
@@ -2727,12 +2727,12 @@ END
 ```
 </details>
 
-## `InsertYearlyTemperatureWI`
+## `InsertYearlyTemperatureTargetState`
 
 **Signature**
 
 ```sql
-PROCEDURE InsertYearlyTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Temperature DECIMAL(5, 2)
+PROCEDURE InsertYearlyTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Temperature DECIMAL(5, 2)
 ```
 
 <details>
@@ -2741,7 +2741,7 @@ PROCEDURE InsertYearlyTemperatureWI(IN p_CountyID INT, IN p_Year INT, IN p_Tempe
 ```sql
 )
 BEGIN
-    INSERT INTO yearly_temperature_data_wi (CountyID, Year, Temperature)
+    INSERT INTO yearly_temperature_data_TargetState (CountyID, Year, Temperature)
     VALUES (p_CountyID, p_Year, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = p_Temperature;

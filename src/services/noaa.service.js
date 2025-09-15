@@ -6,7 +6,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const { BASE_URL } = require('../config/constants');
-const { parseAndInsertAllNormsAndWIData } = require('./parse.service');
+const { parseAndInsertAllNormsAndTargetStateData } = require('./parse.service');
 
 /**
  * Scrape NOAA directory to find latest temp & precip county files.
@@ -57,7 +57,7 @@ async function fetchDataFromAPI(url, scale) {
     let result = null;
 
     if (scale === 'County') {
-      result = await parseAndInsertAllNormsAndWIData(data);
+      result = await parseAndInsertAllNormsAndTargetStateData(data);
     } else if (scale === 'Grid') {
       // (future grid support)
     }
