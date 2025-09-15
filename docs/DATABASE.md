@@ -24,6 +24,310 @@ It covers the **purpose of each table group**, the **data flow** (ingest → tem
 
 ## High-Level Architecture
 
+```mermaid
+erDiagram
+    STATES {
+      varchar(2) StateCode PK
+      varchar(2) StateAbbr
+      varchar(100) StateName
+    }
+
+    COUNTIES {
+      int CountyID PK
+      varchar(3) CountyCode
+      varchar(100) CountyName
+      varchar(2) StateCode FK
+      decimal(8,6) Latitude
+      decimal(9,6) Longitude
+    }
+
+    PHYSICALDISTANCES {
+      int TargetCountyId PK,FK
+      int AnalogCountyId PK,FK
+      decimal(8,6) PhysicalDistance
+    }
+
+    %% ------------------ FINAL FACT TABLES ------------------
+    MONTHLY_PRECIP_WI {
+      int CountyID PK,FK
+      int Year  PK
+      varchar(2) Month PK
+      decimal(5,2) Precipitation
+    }
+
+    MONTHLY_TEMP_WI {
+      int CountyID PK,FK
+      int Year PK
+      varchar(2) Month PK
+      decimal(5,2) Temperature
+    }
+
+    SEASONAL_PRECIP_WI {
+      int CountyID PK,FK
+      int Year PK
+      varchar(6) Season PK
+      decimal(5,2) Precipitation
+    }
+
+    SEASONAL_TEMP_WI {
+      int CountyID PK,FK
+      int Year PK
+      varchar(6) Season PK
+      decimal(5,2) Temperature
+    }
+
+    YEARLY_PRECIP_WI {
+      int CountyID PK,FK
+      int Year PK
+      decimal(5,2) Precipitation
+    }
+
+    YEARLY_TEMP_WI {
+      int CountyID PK,FK
+      int Year PK
+      decimal(5,2) Temperature
+    }
+
+    %% ------------------ NORMS TABLES ------------------
+    MONTHLY_PRECIP_NORMS {
+      int CountyID PK,FK
+      varchar(2) Month PK
+      decimal(5,2) NormPrecipitation
+      decimal(5,2) StdDevPrecipitation
+    }
+
+    MONTHLY_TEMP_NORMS {
+      int CountyID PK,FK
+      varchar(2) Month PK
+      decimal(5,2) NormTemperature
+      decimal(5,2) StdDevTemperature
+    }
+
+    SEASONAL_PRECIP_NORMS {
+      int CountyID PK,FK
+      varchar(6) Season PK
+      decimal(5,2) NormPrecipitation
+      decimal(5,2) StdDevPrecipitation
+    }
+
+    SEASONAL_TEMP_NORMS {
+      int CountyID PK,FK
+      varchar(6) Season PK
+      decimal(5,2) NormTemperature
+      decimal(5,2) StdDevTemperature
+    }
+
+    YEARLY_PRECIP_NORMS {
+      int CountyID PK,FK
+      decimal(5,2) NormPrecipitation
+      decimal(5,2) StdDevPrecipitation
+    }
+
+    YEARLY_TEMP_NORMS {
+      int CountyID PK,FK
+      decimal(5,2) NormTemperature
+      decimal(5,2) StdDevTemperature
+    }
+
+    %% ------------------ DISTANCES (FINAL) ------------------
+    MONTHLY_PRECIP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(2) Month PK
+      decimal(6,2) Distance
+      int AnalogRank
+    }
+
+    MONTHLY_TEMP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(2) Month PK
+      decimal(6,2) Distance
+      int AnalogRank
+    }
+
+    MONTHLY_COMBINED_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(2) Month PK
+      decimal(6,2) Distance
+      int AnalogRank
+    }
+
+    SEASONAL_PRECIP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(6) Season PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    SEASONAL_TEMP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(6) Season PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    SEASONAL_COMBINED_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      varchar(6) Season PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    YEARLY_PRECIP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    YEARLY_TEMP_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    YEARLY_COMBINED_DIST {
+      int TargetCountyID PK,FK
+      int AnalogCountyID PK,FK
+      int Year PK
+      decimal(5,2) Distance
+      int AnalogRank
+    }
+
+    %% ------------------ TEMP STAGING (no FKs by design) ------------------
+    WI_MNTH_PRECIP_TEMP {
+      int CountyID
+      int Year
+      char(2) Month
+      float Precipitation
+    }
+    WI_MNTH_TEMP_TEMP {
+      int CountyID
+      int Year
+      char(2) Month
+      float Temperature
+    }
+    WI_SEAS_PRECIP_TEMP {
+      int CountyID
+      int Year
+      varchar(10) Season
+      float Precipitation
+    }
+    WI_SEAS_TEMP_TEMP {
+      int CountyID
+      int Year
+      varchar(10) Season
+      float Temperature
+    }
+    WI_YR_PRECIP_TEMP {
+      int CountyID
+      int Year
+      float Precipitation
+    }
+    WI_YR_TEMP_TEMP {
+      int CountyID
+      int Year
+      float Temperature
+    }
+
+    MNTH_PRECIP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      varchar(2) Month
+      decimal(5,2) Distance
+    }
+    MNTH_TEMP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      varchar(2) Month
+      decimal(5,2) Distance
+    }
+    SEAS_PRECIP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      varchar(6) Season
+      decimal(5,2) Distance
+    }
+    SEAS_TEMP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      varchar(6) Season
+      decimal(5,2) Distance
+    }
+    YR_PRECIP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      decimal(5,2) Distance
+    }
+    YR_TEMP_DIST_TEMP {
+      int TargetCountyID
+      int AnalogCountyID
+      int Year
+      decimal(5,2) Distance
+    }
+
+    %% ------------------ RELATIONSHIPS ------------------
+    STATES ||--o{ COUNTIES : "has"
+
+    COUNTIES ||--o{ MONTHLY_PRECIP_WI : "has"
+    COUNTIES ||--o{ MONTHLY_TEMP_WI   : "has"
+    COUNTIES ||--o{ SEASONAL_PRECIP_WI: "has"
+    COUNTIES ||--o{ SEASONAL_TEMP_WI  : "has"
+    COUNTIES ||--o{ YEARLY_PRECIP_WI  : "has"
+    COUNTIES ||--o{ YEARLY_TEMP_WI    : "has"
+
+    COUNTIES ||--o{ MONTHLY_PRECIP_NORMS : "norms for"
+    COUNTIES ||--o{ MONTHLY_TEMP_NORMS   : "norms for"
+    COUNTIES ||--o{ SEASONAL_PRECIP_NORMS: "norms for"
+    COUNTIES ||--o{ SEASONAL_TEMP_NORMS  : "norms for"
+    COUNTIES ||--o{ YEARLY_PRECIP_NORMS  : "norms for"
+    COUNTIES ||--o{ YEARLY_TEMP_NORMS    : "norms for"
+
+    %% Distances reference Counties twice (target and analog)
+    COUNTIES ||--o{ MONTHLY_PRECIP_DIST  : "as Target"
+    COUNTIES ||--o{ MONTHLY_TEMP_DIST    : "as Target"
+    COUNTIES ||--o{ MONTHLY_COMBINED_DIST: "as Target"
+    COUNTIES ||--o{ SEASONAL_PRECIP_DIST : "as Target"
+    COUNTIES ||--o{ SEASONAL_TEMP_DIST   : "as Target"
+    COUNTIES ||--o{ SEASONAL_COMBINED_DIST: "as Target"
+    COUNTIES ||--o{ YEARLY_PRECIP_DIST   : "as Target"
+    COUNTIES ||--o{ YEARLY_TEMP_DIST     : "as Target"
+    COUNTIES ||--o{ YEARLY_COMBINED_DIST : "as Target"
+
+    COUNTIES ||--o{ PHYSICALDISTANCES : "as Target"
+    COUNTIES ||--o{ PHYSICALDISTANCES : "as Analog"
+
+    COUNTIES ||--o{ MONTHLY_PRECIP_DIST  : "as Analog"
+    COUNTIES ||--o{ MONTHLY_TEMP_DIST    : "as Analog"
+    COUNTIES ||--o{ MONTHLY_COMBINED_DIST: "as Analog"
+    COUNTIES ||--o{ SEASONAL_PRECIP_DIST : "as Analog"
+    COUNTIES ||--o{ SEASONAL_TEMP_DIST   : "as Analog"
+    COUNTIES ||--o{ SEASONAL_COMBINED_DIST: "as Analog"
+    COUNTIES ||--o{ YEARLY_PRECIP_DIST   : "as Analog"
+    COUNTIES ||--o{ YEARLY_TEMP_DIST     : "as Analog"
+    COUNTIES ||--o{ YEARLY_COMBINED_DIST : "as Analog"
+
+```
+
 - **DB Engine:** MySQL
 - **Primary Entities:** Counties (with lat/long), States
 - **Facts:** Precipitation & Temperature for **Monthly**, **Seasonal**, and **Yearly** time scales (Wisconsin-focused final tables).
