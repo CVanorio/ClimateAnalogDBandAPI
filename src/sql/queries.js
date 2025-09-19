@@ -1,7 +1,10 @@
-/**
- * All stored procedure / SQL query strings.
- * 
- */
+// src/sql/queries.js
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SQL / Stored Procedure Strings
+// Extracted verbatim from original file.
+// Grouped by category: Insert, Calculate Distances, Get Analogs, Other
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Insert data from NOAA files
 // Monthly
@@ -9,13 +12,11 @@ const insertTargetStateCountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitati
 const insertTargetStateCountyMonthlyTempQuery   = 'CALL InsertMonthlyTemperatureTargetState(?, ?, ?, ?);';
 const insertMonthlyPrecipNormsQuery    = 'CALL InsertMonthlyPrecipitationNorms(?, ?, ?, ?);';
 const insertMonthlyTempNormsQuery      = 'CALL InsertMonthlyTemperatureNorms(?, ?, ?, ?);';
-
 // Yearly
 const insertTargetStateCountyYearlyPrecipQuery  = 'CALL InsertYearlyPrecipitationTargetState(?, ?, ?);';
 const insertTargetStateCountyYearlyTempQuery    = 'CALL InsertYearlyTemperatureTargetState(?, ?, ?);';
 const insertYearlyPrecipNormsQuery     = 'CALL InsertYearlyPrecipitationNorms(?, ?, ?);';
 const insertYearlyTempNormsQuery       = 'CALL InsertYearlyTemperatureNorms(?, ?, ?);';
-
 // Seasonal
 const insertTargetStateCountySeasonalPrecipQuery = 'CALL InsertSeasonalPrecipitationTargetState(?, ?, ?, ?)';
 const insertTargetStateCountySeasonalTempQuery   = 'CALL InsertSeasonalTemperatureTargetState(?, ?, ?, ?)';
@@ -27,12 +28,10 @@ const insertSeasonalTempNormsQuery      = 'CALL InsertSeasonalTemperatureNorms(?
 const calculateMonthlyPrecipDistancesQuery   = 'CALL CalculateMonthlyPrecipitationDistances();';
 const calculateMonthlyTempDistancesQuery     = 'CALL CalculateMonthlyTemperatureDistances();';
 const calculateMonthlyCombinedDistancesQuery = 'CALL CalculateAllMonthlyCombinedDistances();';
-
 // Seasonal
 const calculateSeasonalPrecipDistancesQuery   = 'CALL CalculateSeasonalPrecipitationDistances();';
 const calculateSeasonalTempDistancesQuery     = 'CALL CalculateSeasonalTemperatureDistances();';
 const calculateSeasonalCombinedDistancesQuery = 'CALL CalculateAllSeasonalCombinedDistances();';
-
 // Yearly
 const calculateYearlyPrecipDistancesQuery   = 'CALL CalculateYearlyPrecipitationDistances();';
 const calculateYearlyTempDistancesQuery     = 'CALL CalculateYearlyTemperatureDistances();';
@@ -42,7 +41,6 @@ const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDista
 const getTopPrecipitationAnalogsByYearQuery = 'CALL GetAllTopPrecipAnalogsForCountyByYear(?);';
 const getTopTemperatureAnalogsByYearQuery   = 'CALL GetAllTopTempAnalogsForCountyByYear(?);';
 const getTopCombinedAnalogsByYearQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByYear(?);';
-
 // Get yearly analogs by year
 const getPrecipitationAnalogsByYearQuery = 'CALL GetTopPrecipAnalogsForCountyByYear(?, ?);';
 const getTemperatureAnalogsByYearQuery   = 'CALL GetTopTempAnalogsForCountyByYear(?, ?);';
@@ -52,7 +50,6 @@ const getCombinedAnalogsByYearQuery      = 'CALL GetTopCombinedAnalogsForCountyB
 const getTopPrecipitationAnalogsBySeasonQuery = 'CALL GetAllTopPrecipAnalogsForCountyBySeason(?, ?);';
 const getTopTemperatureAnalogsBySeasonQuery   = 'CALL GetAllTopTempAnalogsForCountyBySeason(?, ?);';
 const getTopCombinedAnalogsBySeasonQuery      = 'CALL GetAllTopCombinedAnalogsForCountyBySeason(?, ?);';
-
 // Get seasonal analogs by year
 const getPrecipitationAnalogsBySeasonQuery = 'CALL GetPrecipAnalogsForCountyByYearAndSeason(?, ?, ?);';
 const getTemperatureAnalogsBySeasonQuery   = 'CALL GetTempAnalogsForCountyByYearAndSeason(?, ?, ?);';
@@ -62,7 +59,6 @@ const getCombinedAnalogsBySeasonQuery      = 'CALL GetCombinedAnalogsForCountyBy
 const getTopPrecipitationAnalogsByMonthQuery = 'CALL GetAllTopPrecipAnalogsForCountyByMonth(?, ?);';
 const getTopTemperatureAnalogsByMonthQuery   = 'CALL GetAllTopTempAnalogsForCountyByMonth(?, ?);';
 const getTopCombinedAnalogsByMonthQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByMonth(?, ?);';
-
 // Get monthly analogs by year
 const getPrecipitationAnalogsByMonthQuery = 'CALL GetPrecipAnalogsForCountyByYearAndMonth(?, ?, ?);';
 const getTemperatureAnalogsByMonthQuery   = 'CALL GetTempAnalogsForCountyByYearAndMonth(?, ?, ?);';
@@ -71,8 +67,12 @@ const getCombinedAnalogsByMonthQuery      = 'CALL GetCombinedAnalogsForCountyByY
 // Other queries
 const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);';
 const getTopAnalogsForTargetByYear     = 'CALL GetTopAnalogForTargetByYear(?);';
-const insertCountyQuery                = 'CALL InsertCounty(?, ?, ?, ?, ?)';
-const insertStateQuery                 = 'CALL InsertState(?, ?, ?)';
+const insertCountyQuery = 'CALL InsertCounty(?, ?, ?, ?, ?)';
+const insertStateQuery  = 'CALL InsertState(?, ?, ?)';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Export everything
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 module.exports = {
   insertTargetStateCountyMonthlyPrecipQuery,
@@ -87,6 +87,7 @@ module.exports = {
   insertTargetStateCountySeasonalTempQuery,
   insertSeasonalPrecipNormsQuery,
   insertSeasonalTempNormsQuery,
+
   calculateMonthlyPrecipDistancesQuery,
   calculateMonthlyTempDistancesQuery,
   calculateMonthlyCombinedDistancesQuery,
@@ -96,26 +97,30 @@ module.exports = {
   calculateYearlyPrecipDistancesQuery,
   calculateYearlyTempDistancesQuery,
   calculateYearlyCombinedDistancesQuery,
+
   getTopPrecipitationAnalogsByYearQuery,
   getTopTemperatureAnalogsByYearQuery,
   getTopCombinedAnalogsByYearQuery,
   getPrecipitationAnalogsByYearQuery,
   getTemperatureAnalogsByYearQuery,
   getCombinedAnalogsByYearQuery,
+
   getTopPrecipitationAnalogsBySeasonQuery,
   getTopTemperatureAnalogsBySeasonQuery,
   getTopCombinedAnalogsBySeasonQuery,
   getPrecipitationAnalogsBySeasonQuery,
   getTemperatureAnalogsBySeasonQuery,
   getCombinedAnalogsBySeasonQuery,
+
   getTopPrecipitationAnalogsByMonthQuery,
   getTopTemperatureAnalogsByMonthQuery,
   getTopCombinedAnalogsByMonthQuery,
   getPrecipitationAnalogsByMonthQuery,
   getTemperatureAnalogsByMonthQuery,
   getCombinedAnalogsByMonthQuery,
+
   getCountyIdByStateAndCountyCodes,
   getTopAnalogsForTargetByYear,
   insertCountyQuery,
-  insertStateQuery,
+  insertStateQuery
 };

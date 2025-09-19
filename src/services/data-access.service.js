@@ -1,11 +1,17 @@
-/**
- * Data Access Service
- * ----------------------------------------------------
- * Wraps DB calls used by /getData endpoint.
- * 
- */
 
-const pool = require('../config/db');
+// src/services/data-access.service.js
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Data Accessors (Year / Season / Month) – DB Calls
+// - Preserves original logic, console logs, Promise.all wrapping, and return shapes.
+// - getTopAnalogsByYear
+// - getDataByYear
+// - getTopAnalogsBySeason
+// - getDataBySeason
+// - getTopAnalogsByMonth
+// - getDataByMonth
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const {pool} = require('../config/db');
 
 const {
   getTopPrecipitationAnalogsByYearQuery,
@@ -30,15 +36,19 @@ const {
   getCombinedAnalogsByMonthQuery,
 } = require('../sql/queries');
 
-/* ========= YEAR ========= */
-
+/**
+ * Define the function to call the stored procedure and return the results as a JSON object
+ * (getTopAnalogsByYear) — preserved verbatim.
+ */
 async function getTopAnalogsByYear(targetCountyName, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -57,25 +67,35 @@ async function getTopAnalogsByYear(targetCountyName, dataType) {
       ]);
     }
 
+    // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }
   }
 }
 
+/**
+ * getDataByYear — preserved verbatim.
+ */
 async function getDataByYear(targetCounty, yearNumber, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -94,28 +114,35 @@ async function getDataByYear(targetCounty, yearNumber, dataType) {
       ]);
     }
 
-    console.log(rows[0]);
+  // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }
   }
 }
 
-/* ========= SEASON ========= */
-
+/**
+ * getTopAnalogsBySeason — preserved verbatim.
+ */
 async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -134,25 +161,35 @@ async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType) {
       ]);
     }
 
+  // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }
   }
 }
 
+/**
+ * getDataBySeason — preserved verbatim.
+ */
 async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -171,27 +208,35 @@ async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataTyp
       ]);
     }
 
+  // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }
   }
 }
 
-/* ========= MONTH ========= */
-
+/**
+ * getTopAnalogsByMonth — preserved verbatim.
+ */
 async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -210,25 +255,35 @@ async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
       ]);
     }
 
+  // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }
   }
 }
 
+/**
+ * getDataByMonth — preserved verbatim.
+ */
 async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType) {
-  let connection;
+  var connection;
+
   try {
+    // Get a connection from the pool
     connection = await pool.getConnection();
     console.log('Database connected successfully');
 
-    let rows = null;
+    var rows = null;
 
     if (dataType === 'precipitation') {
       console.log('Inside preciptation');
@@ -247,12 +302,17 @@ async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType
       ]);
     }
 
+ // console.log(rows[0][0][0]);
+
+    // Return the rows as a JSON object
     return { success: true, data: rows };
   } catch (error) {
     console.error('Error getting data:', error);
+    // Return an error object
     return { success: false, error: error.message };
   } finally {
     if (connection) {
+      // Close the database connection
       connection.release();
       console.log('Database connection closed.');
     }

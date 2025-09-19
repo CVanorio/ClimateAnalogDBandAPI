@@ -1,12 +1,9 @@
-/**
- * Routes: Ingestion
- * GET /addallcountydata
- */
-const { Router } = require('express');
+// src/routes/ingest.routes.js
+const express = require('express');
+const router = express.Router();
 const { addAllCountyData } = require('../controllers/ingest.controller');
 
-const router = Router();
-
+// Add all county data
 router.get('/addallcountydata', addAllCountyData);
 
 module.exports = router;

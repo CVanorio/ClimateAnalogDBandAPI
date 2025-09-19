@@ -29,6 +29,14 @@ When the climatology window changes (e.g., from 1991–2020 to 2001–2030, once
    const climateNormalYears = [1991, 2020];
     ```
 
+    - Update the feature flag NEW_CLIMATE_NORMALS to be True
+    - This allows for all years to be reprocessed instead of only new years.
+
+    Example:
+   ```js
+   const NEW_CLIMATE_NORMALS = true;
+    ```
+
 2. Clear Existing Norms
 
 Run SQL commands to truncate the norms tables if you want a fresh rebuild:
@@ -43,19 +51,6 @@ TRUNCATE TABLE yearly_temperature_norms;
 ```
 
 3. Re-Run Norm Calculation
-
-Before running the ingestion pipeline, temporarily comment out this code block in parse.sevice.js:
-```js
- if (
-        latestYearMonth &&
-        (yearData.Year < latestYearMonth.year ||
-          (yearData.Year === latestYearMonth.year &&
-            latestYearMonth.month === 12))
-      ) {
-        continue;
-      }
-      ```
-This allows for all years to be reprocessed.
 
 Next, trigger the ingestion pipeline (/addallcountydata) or directly call the stored procedures that compute norms.
 
@@ -102,6 +97,6 @@ This will rebuild:
 
 - Always document which climatology years are active in your setup (e.g., in README or database metadata).
 
-- If you need to support multiple climatology periods (e.g., 1981–2010 and 1991–2020), consider adding an extra column (ClimPeriod) to your norms and distances tables instead of overwriting. Please note this will drastically increase database resources required.
+- If you want to support multiple climatology periods (e.g., 1981–2010 and 1991–2020), consider adding an extra column to your norms and distances tables instead of overwriting. Please note this will drastically increase database resources required.
 
 - Depending on database size, a full rebuild may take several hours to a few days.

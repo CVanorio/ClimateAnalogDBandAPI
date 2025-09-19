@@ -2,8 +2,9 @@
  * Controller: Data ingestion endpoint (/addallcountydata).
  * 
  */
-const { getLatestNOAAFileLinks, fetchDataFromAPI } = require('../services/noaa.service');
-const { calculateAndInsertEuclideanDistances } = require('../services/distances.service'); // <-- fixed path
+const { fetchDataFromAPI } = require('../services/noaa.service');
+const { calculateAndInsertEuclideanDistances } = require('../services/distances.service');
+const { getLatestNOAAFileLinks } = require('../cron/syncData');
 
 async function addAllCountyData(req, res) {
   try {

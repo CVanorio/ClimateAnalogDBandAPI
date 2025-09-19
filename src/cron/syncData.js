@@ -1,3 +1,4 @@
+
 /**
  * Cron job to check NOAA site daily for updated files
  * and trigger /addallcountydata if new data is available.
@@ -76,7 +77,7 @@ function saveLastCheckedDate(tempDate, precipDate) {
 function startNOAACronJob() {
   console.log('Cron job initialized');
 
-  cron.schedule('56 15 * * *', async () => {
+  cron.schedule('08 21 * * *', async () => {
     console.log('[Cron] Checking for NOAA file updates...');
 
     const today = new Date();
@@ -91,7 +92,7 @@ function startNOAACronJob() {
     }
 
     try {
-      const { tempDate, precipDate, tempURL, precipURL } = await getLatestNOAAFileLinks();
+      const { tempDate, precipDate } = await getLatestNOAAFileLinks();
 
       const isNewTemp = tempDate && tempDate !== lastChecked.temp;
       const isNewPrecip = precipDate && precipDate !== lastChecked.precip;
@@ -101,7 +102,12 @@ function startNOAACronJob() {
           const port = process.env.PORT || 3000;
           const response = await axios.get(`http://localhost:${port}/addallcountydata`);
           console.log(`/addallcountydata responded with: ${response.status}`);
-          saveLastCheckedDate(tempDate, precipDate);
+          if(response.status === 200){
+            //saveLastCheckedDate(tempDate, precipDate);
+          }
+          else{
+            console.error('Error: /addallcountydata did not complete successfully.');
+          }
         } catch (err) {
           console.error('Error calling /addallcountydata:', err.message);
         }
@@ -112,4 +118,7 @@ function startNOAACronJob() {
   });
 }
 
-module.exports = startNOAACronJob;
+module.exports = {
+  startNOAACronJob,
+  getLatestNOAAFileLinks,
+};

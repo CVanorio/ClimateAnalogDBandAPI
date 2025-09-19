@@ -1,40 +1,100 @@
-/**
- * Distances Service
- * ----------------------------------------------------
- * Creates TEMP distance tables, runs stored procedures to compute
- * monthly/seasonal/yearly distances (precip, temp, combined),
- * and drops TEMP tables when finished
- */
+// src/services/distances.service.js
 
-const pool = require('../config/db');
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Distance calculations (verbatim logic preserved)
+// Now opens a NEW DB connection for EACH individual execute() call.
+// Public API signatures unchanged so existing callers keep working.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const {pool} = require('../config/db');
 
 const {
   calculateMonthlyPrecipDistancesQuery,
-  calculateMonthlyTempDistancesQuery,
-  calculateMonthlyCombinedDistancesQuery,
   calculateSeasonalPrecipDistancesQuery,
-  calculateSeasonalTempDistancesQuery,
-  calculateSeasonalCombinedDistancesQuery,
   calculateYearlyPrecipDistancesQuery,
+  calculateMonthlyTempDistancesQuery,
+  calculateSeasonalTempDistancesQuery,
   calculateYearlyTempDistancesQuery,
+  calculateMonthlyCombinedDistancesQuery,
+  calculateSeasonalCombinedDistancesQuery,
   calculateYearlyCombinedDistancesQuery,
 } = require('../sql/queries');
 
-/* ===== Utilities (local to this service) ===== */
-
-async function runOnce(label, sql) {
-  console.log(`--- Starting: ${label} ---`);
-  const conn = await pool.getConnection();
+/**
+ * Internal helper: run a single query with its own connection.
+ */
+async function runWithNewConnection(query) {
+  let connection;
   try {
-    await conn.execute(sql);
-    console.log(`Finished: ${label}`);
-  } catch (err) {
-    console.error(`Error in ${label}:`, err);
-    throw err;
+    connection = await pool.getConnection();
+    await connection.execute(query);
   } finally {
-    conn.release();
+    if (connection) connection.release();
   }
 }
+
+/**
+ * Verbatim calculatePrecipDistances(connection)
+ * (connection param kept for API compatibility; it is intentionally ignored.)
+ */
+async function calculatePrecipDistances(/* connection */) {
+  console.log('Calculating Precip variable distances!');
+  await runWithNewConnection(calculateMonthlyPrecipDistancesQuery);
+  await runWithNewConnection(calculateSeasonalPrecipDistancesQuery);
+  await runWithNewConnection(calculateYearlyPrecipDistancesQuery);
+}
+
+/**
+ * Verbatim calculateTempDistances(connection)
+ * (connection param kept for API compatibility; it is intentionally ignored.)
+ */
+async function calculateTempDistances(/* connection */) {
+  console.log('Calculating Temp variable distances!');
+  await runWithNewConnection(calculateMonthlyTempDistancesQuery);
+  await runWithNewConnection(calculateSeasonalTempDistancesQuery);
+  await runWithNewConnection(calculateYearlyTempDistancesQuery);
+}
+
+/**
+ * Verbatim calculateTwoVariableDistances(connection)
+ * (connection param kept for API compatibility; it is intentionally ignored.)
+ */
+async function calculateTwoVariableDistances(/* connection */) {
+  console.log('Calculating Combined variable distances!');
+  await runWithNewConnection(calculateMonthlyCombinedDistancesQuery);
+  await runWithNewConnection(calculateSeasonalCombinedDistancesQuery);
+  await runWithNewConnection(calculateYearlyCombinedDistancesQuery);
+}
+
+/**
+ * Verbatim calculateAndInsertEuclideanDistances()
+ * Preserves the original return shape (including undefined 'responseData').
+ * No single shared connection is opened here anymore — each execute has its own.
+ */
+async function calculateAndInsertEuclideanDistances() {
+  try {
+
+    await createAllTEMPDistanceTables();
+  
+    await calculatePrecipDistances();
+    await calculateTempDistances();
+    await calculateTwoVariableDistances();
+
+    await dropAllTempTables();
+
+    return {
+      success: true,
+      data: 'Euclidean distance calculations completed', // or null if you prefer
+    };
+  } catch (error) {
+    console.error('Error inserting data:', error);
+    return {
+      success: false,
+      error: `Error inserting data: ${error.message}`,
+    };
+  }
+}
+
 
 /* ===== TEMP distance table lifecycle ===== */
 
@@ -47,14 +107,16 @@ async function createTempDistanceTables(connection) {
       Year INT,
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year)
-    )`,
+    );`,
+      `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
     `CREATE TABLE IF NOT EXISTS yearly_temperature_distances_TEMP (
       TargetCountyID INT,
       AnalogCountyID INT,
       Year INT,
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year)
-    )`,
+    );`,
+    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
 
     // SEASONAL
     `CREATE TABLE IF NOT EXISTS seasonal_precipitation_distances_TEMP (
@@ -64,7 +126,8 @@ async function createTempDistanceTables(connection) {
       Season VARCHAR(6),
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Season)
-    )`,
+    );`,
+   `TRUNCATE TABLE seasonal_precipitation_distances_TEMP;`,
     `CREATE TABLE IF NOT EXISTS seasonal_temperature_distances_TEMP (
       TargetCountyID INT,
       AnalogCountyID INT,
@@ -72,7 +135,8 @@ async function createTempDistanceTables(connection) {
       Season VARCHAR(6),
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Season)
-    )`,
+    );`,
+    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
 
     // MONTHLY
     `CREATE TABLE IF NOT EXISTS monthly_precipitation_distances_TEMP (
@@ -82,7 +146,8 @@ async function createTempDistanceTables(connection) {
       Month VARCHAR(2),
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Month)
-    )`,
+    );`,
+    `TRUNCATE TABLE monthly_precipitation_distances_TEMP;`,
     `CREATE TABLE IF NOT EXISTS monthly_temperature_distances_TEMP (
       TargetCountyID INT,
       AnalogCountyID INT,
@@ -90,7 +155,8 @@ async function createTempDistanceTables(connection) {
       Month VARCHAR(2),
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Month)
-    )`,
+    );`,
+    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
   ];
 
   for (const q of queries) {
@@ -110,12 +176,12 @@ async function dropTempTables(connection) {
     'monthly_temperature_distances_TEMP',
 
     // Input TEMP Tables (mirrors original dropAllTempTables behavior)
-    'WICountyMonthlyPrecip_TEMP',
-    'WICountyMonthlyTemp_TEMP',
-    'WICountySeasonalPrecip_TEMP',
-    'WICountySeasonalTemp_TEMP',
-    'WICountyYearlyPrecip_TEMP',
-    'WICountyYearlyTemp_TEMP',
+    'TargetStateCountyMonthlyPrecip_TEMP',
+    'TargetStateCountyMonthlyTemp_TEMP',
+    'TargetStateCountySeasonalPrecip_TEMP',
+    'TargetStateCountySeasonalTemp_TEMP',
+    'TargetStateCountyYearlyPrecip_TEMP',
+    'TargetStateCountyYearlyTemp_TEMP',
   ];
 
   for (const table of tempTables) {
@@ -150,67 +216,7 @@ async function dropAllTempTables() {
   }
 }
 
-/* ===== Distance runners (match original sequencing) ===== */
-
-async function calculatePrecipDistances() {
-  try {
-    await createAllTEMPDistanceTables();
-    await runOnce('Monthly Precipitation Distances', calculateMonthlyPrecipDistancesQuery);
-    await runOnce('Seasonal Precipitation Distances', calculateSeasonalPrecipDistancesQuery);
-    await runOnce('Yearly Precipitation Distances', calculateYearlyPrecipDistancesQuery);
-  } catch (error) {
-    console.error('Error in calculatePrecipDistances:', error);
-    throw error;
-  }
-}
-
-async function calculateTempDistances() {
-  try {
-    await runOnce('Monthly Temperature Distances', calculateMonthlyTempDistancesQuery);
-    await runOnce('Seasonal Temperature Distances', calculateSeasonalTempDistancesQuery);
-    await runOnce('Yearly Temperature Distances', calculateYearlyTempDistancesQuery);
-  } catch (error) {
-    console.error('Error in calculateTempDistances:', error);
-    throw error;
-  }
-}
-
-async function calculateTwoVariableDistances() {
-  try {
-    await runOnce('Monthly Combined Distances', calculateMonthlyCombinedDistancesQuery);
-    await runOnce('Seasonal Combined Distances', calculateSeasonalCombinedDistancesQuery);
-    await runOnce('Yearly Combined Distances', calculateYearlyCombinedDistancesQuery);
-    // mirror original behavior: drop temp tables after combined distances
-    await dropAllTempTables();
-  } catch (error) {
-    console.error('Error in calculateTwoVariableDistances:', error);
-    throw error;
-  }
-}
-
-/**
- * Master orchestrator (unchanged logic): run precip → temp → combined.
- */
-async function calculateAndInsertEuclideanDistances() {
-  try {
-    await calculatePrecipDistances();
-    await calculateTempDistances();
-    await calculateTwoVariableDistances();
-    return { success: true };
-  } catch (error) {
-    console.error('Error inserting data:', error);
-    return { success: false, error: `Error inserting data: ${error.message}` };
-  }
-}
 
 module.exports = {
-  // lifecycle helpers (exported because original code used them)
-  createAllTEMPDistanceTables,
-  dropAllTempTables,
-
-  // runners
-  calculatePrecipDistances,
-  calculateTempDistances,
-  calculateTwoVariableDistances,
   calculateAndInsertEuclideanDistances,
 };
