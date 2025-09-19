@@ -6,12 +6,8 @@
 // - /addstate/:StateCode/:StateAbbr/:StateName
 // - /getcounties
 // - /getcounty/:CountyID
-//
-// Notes:
-// * PRESERVES original route behavior, logs, and response shapes.
-// * /addcounty: responds immediately, then performs DB insert (fire-and-forget), as in original.
-// * Uses mysql2/promise pool (no mockDB).
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 const {pool} = require('../config/db'); // mysql2/promise pool
 const { insertCountyQuery, insertStateQuery } = require('../sql/queries');
@@ -28,7 +24,6 @@ async function _insertCountyFF(countyID, countyName, stateCode, lat, long) {
 
     if (!countyID || !countyName || !stateCode || isNaN(Latitude) || isNaN(Longitude)) {
       console.log(`Invalid parameters: ${countyID}, ${countyName}, ${stateCode}, ${Latitude}, ${Longitude}`);
-      // Original code attempted to res.status(400) here (not available). We just log to preserve intent.
       return;
     }
 
@@ -41,7 +36,6 @@ async function _insertCountyFF(countyID, countyName, stateCode, lat, long) {
     ]);
 
     console.log(result);
-    // Original helper tried to res.send(result); we only log (since response was already sent).
   } catch (error) {
     console.error('Error inserting county:', error);
   } finally {
@@ -53,7 +47,7 @@ async function _insertCountyFF(countyID, countyName, stateCode, lat, long) {
 }
 
 // POST /addcounty/:countyID/:countyName/:stateCode/:lat/:long
-// Responds immediately (as original), then kicks off insert.
+// Responds immediately, then kicks off insert.
 async function addCounty(req, res) {
   try {
     const { countyID, countyName, stateCode, lat, long } = req.params;
@@ -81,7 +75,6 @@ async function addCounty(req, res) {
 }
 
 // POST /addstate/:StateCode/:StateAbbr/:StateName
-// Original responded only after executing insert; we keep that logic.
 async function addState(req, res) {
   let connection;
   try {
@@ -98,7 +91,6 @@ async function addState(req, res) {
     const [result] = await connection.execute(insertStateQuery, [StateCode, StateAbbr, StateName]);
     console.log(result);
 
-    // Original returns simple success string
     return res.send('State inserted successfully');
   } catch (error) {
     if (error?.response) {
@@ -119,7 +111,6 @@ async function addState(req, res) {
 }
 
 // GET /getcounties
-// Original logged results and responded with "Counties fetched" (not the data).
 async function getAllCounties(req, res) {
   let connection;
   try {
@@ -143,7 +134,6 @@ async function getAllCounties(req, res) {
 }
 
 // GET /getcounty/:CountyID
-// Original logged result and responded with "County fetched".
 async function getCountyById(req, res) {
   let connection;
   try {

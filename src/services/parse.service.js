@@ -1,6 +1,6 @@
 // src/services/parse.service.js
 /**
- * Parse & Insert Service (TargetState path)
+ * Parse & Insert Service
  * ----------------------------------------------------
  * - Drops & recreates TEMP input tables for TargetState
  * - Parses NOAA fixed-width lines (via utils/fixedWidth)
@@ -52,13 +52,17 @@ async function getLatestInsertedMonth(connection) {
   return { year: Number(rows[0].Year), month: Number(rows[0].Month) };
 }
 
-/** Parse one fixed-width line → { CountyID, Year, DataType, StateCode, CountyCode, MonthData[] } */
+/**
+ * Parse one fixed-width line → { CountyID, Year, DataType, StateCode, CountyCode, MonthData[] }.
+ * Uses a DB lookup to resolve CountyID; returns null CountyID when not found (caller skips those).
+ */
 async function parseMonthlyLineData(line, connection) {
   const DataType = line.substring(5, 7);
   const Year = parseInt(line.substring(7, 11), 10);
   const StateCode = line.substring(0, 2);
   const CountyCode = line.substring(2, 5);
 
+  // SP returns nested arrays; guard for empty results.
   const [rows] = await connection.execute(getCountyIdByStateAndCountyCodes, [CountyCode, StateCode]);
 
   let CountyID = null;
@@ -67,7 +71,7 @@ async function parseMonthlyLineData(line, connection) {
   }
 
   const MonthData = parseMonthValues(line);
- // console.log("Row: ", { CountyID, Year, DataType, StateCode, CountyCode, MonthData });
+  // console.log("Row: ", { CountyID, Year, DataType, StateCode, CountyCode, MonthData });
   return { CountyID, Year, DataType, StateCode, CountyCode, MonthData };
 }
 
@@ -81,6 +85,7 @@ async function calculateNorms(yearData, prevDecember, normProperties, connection
   storeSeasonalValues(yearData, prevDecember, normProperties);
 
   if (yearData.Year == climateNormalYears[1]) {
+    // Flush once we reach the end of the normals window (e.g., 1991–2020).
     await calculateAndInsertMonthlyNorms(yearData, normProperties, connection);
     await calculateAndInsertYearlyNorms(yearData, normProperties, connection);
     await calculateAndInsertSeasonalNorms(yearData, normProperties, connection);
@@ -98,6 +103,7 @@ function storeMonthlyValues(yearData, normProperties) {
       normProperties.monthlyNorms[i] = { total: 0, values: [] };
     }
     const v = yearData.MonthData[i];
+    // -9.99 / -99.90 are sentinel missing values in NOAA datasets
     if (v != -9.99 && v != -99.90) {
       normProperties.monthlyNorms[i].total += v;
       normProperties.monthlyNorms[i].values.push(v);
@@ -114,6 +120,7 @@ function storeYearlyValues(yearData, normProperties) {
     const v = yearData.MonthData[i];
     if (v != -9.99 && v != -99.90) sum += v;
   }
+  // Temperature normals use the mean of the 12 monthly values; precip uses sum.
   if (yearData.DataType === tempDatatype) {
     sum = sum / yearData.MonthData.length;
   }
@@ -130,6 +137,7 @@ function storeSeasonalValues(yearData, prevDecember, normProperties) {
     }
   }
 
+  // DJF uses prevDecember from the previous line, then Jan/Feb of current Year.
   let winter = prevDecember;
   let spring = 0;
   let summer = 0;
@@ -143,6 +151,7 @@ function storeSeasonalValues(yearData, prevDecember, normProperties) {
     else if (i < 11) fall += v;
   }
 
+  // Temperature seasonal normals are averages; precipitation are totals.
   if (yearData.DataType === tempDatatype) {
     winter /= 3;
     spring /= 3;
@@ -176,6 +185,7 @@ async function calculateAndInsertMonthlyNorms(yearData, normProperties, connecti
   for (const i in yearData.MonthData) {
     const total = normProperties.monthlyNorms[i].values.length;
     const mean = normProperties.monthlyNorms[i].total / total;
+    // Population std dev (divide by N); matches original behavior.
     const ss = normProperties.monthlyNorms[i].values.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
     let stddev = Math.sqrt(ss / total);
 
@@ -195,6 +205,7 @@ async function calculateAndInsertYearlyNorms(yearData, normProperties, connectio
 
   const totalYears = normProperties.yearlyNorms.values.length;
   const mean = normProperties.yearlyNorms.total / totalYears;
+  // Population std dev again (N, not N-1).
   const ss = normProperties.yearlyNorms.values.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
   let stddev = Math.sqrt(ss / totalYears);
 
@@ -292,6 +303,7 @@ async function createTempTables(connection) {
     },
   ];
 
+  // Drop then create for a clean slate on each run (idempotent ingestion).
   for (const { name, create } of tables) {
     await connection.execute(`DROP TABLE IF EXISTS ${name}`);
     await connection.execute(create);
@@ -302,6 +314,7 @@ async function createTempTables(connection) {
 async function copyTempToDataTargetStateTables(connection, dataType) {
   const isTemp = dataType === tempDatatype;
 
+  // Use REPLACE to upsert into final tables without duplicates.
   if (isTemp) {
     const sets = [
       { temp: 'TargetStateCountyMonthlyTemp_TEMP',   target: 'monthly_temperature_data_TargetState',  cols: '(CountyID, Year, Month, Temperature)' },
@@ -341,7 +354,7 @@ async function insertTargetStateMonthlyData(yearData, connection, latestYearMont
     const value = yearData.MonthData[i];
     if (value === -9.99 || value === -99.90) continue;
 
-    // If same year as checkpoint, skip months already processed
+    // If same year as checkpoint, skip months already processed.
     if (latestYearMonth && Number(yearData.Year) === Number(latestYearMonth.year)) {
       const monthNum = parseInt(monthValues[i], 10);
       if (monthNum <= Number(latestYearMonth.month)) continue;
@@ -359,6 +372,7 @@ async function insertTargetStateYearlyData(yearData, connection) {
     query = 'REPLACE INTO TargetStateCountyYearlyTemp_TEMP (CountyID, Year, Temperature) VALUES (?, ?, ?);';
   }
 
+  // Yearly totals (precip = sum; temp = mean of months).
   let total = 0;
   for (const i in yearData.MonthData) {
     const v = yearData.MonthData[i];
@@ -391,6 +405,7 @@ async function insertTargetStateSeasonalData(
   let summer = 0;
   let fall = 0;
 
+  // For current year, only include seasons that are "complete" so far.
   if (yearData.Year === currentYear) {
     for (const i in yearData.MonthData) {
       const v = yearData.MonthData[i];
@@ -400,6 +415,7 @@ async function insertTargetStateSeasonalData(
       else if (i < 11 && currentMonth === 11) fall += v;
     }
   } else {
+    // Historical years: include full seasons.
     for (const i in yearData.MonthData) {
       const v = yearData.MonthData[i];
       if (i < 2) winter += v;
@@ -418,6 +434,7 @@ async function insertTargetStateSeasonalData(
   summer = roundToTwo(summer);
   fall   = roundToTwo(fall);
 
+  // Guard against seasons whose "end" is already captured by the checkpoint.
   const baseYear = Number(yearData.Year);
   const seasonEnd = {
     winter: { year: baseYear + 1, month: 2 }, // Feb next year
@@ -469,7 +486,7 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
     const currentMonth = now.getMonth(); // 0–11
 
     const lines = responseData.split('\n');
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === '') lines.pop(); // NOAA files often end with a trailing newline
 
     let prevDecember = null;
     const normProps = { monthlyNorms: {}, seasonalNorms: {}, yearlyNorms: {} };
@@ -480,7 +497,7 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
 
       lastDataType = yearData.DataType;
 
-      // If NOT recomputing normals, skip whole years that are fully processed (latest month == 12)
+      // If NOT recomputing normals, skip whole years that are fully processed or when latest month is December
       // or any year earlier than the checkpoint.
       if (!NEW_CLIMATE_NORMALS && latestYearMonth) {
         const y = Number(yearData.Year);
@@ -495,7 +512,7 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
       if (yearData.Year === 1895) prevDecember = null;
 
       console.log(`Processing Year ${yearData.Year}, DataType ${yearData.DataType}, CountyID ${yearData.CountyID}`);
-      // Norms window
+      // Norms window (e.g., 1991–2020)
       if (yearData.Year >= climateNormalYears[0] && yearData.Year <= climateNormalYears[1]) {
         await calculateNorms(yearData, prevDecember, normProps, connection);
       }
@@ -542,7 +559,7 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
   }
 }
 
-/* ========================================================================== */
+/* " ========================================================================== */
 /* Exports                                                                    */
 /* ========================================================================== */
 

@@ -9,11 +9,11 @@ const adminRoutes  = require('./src/routes/admin.routes');  // POST /addcounty, 
 
 const app = express();
 
-// Middleware (same as original)
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Mount routes at root so paths match originals verbatim
+// Mount routes at root
 app.use('/', ingestRoutes);
 app.use('/', dataRoutes);
 app.use('/', adminRoutes);

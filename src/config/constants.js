@@ -1,14 +1,6 @@
 
 // src/config/constants.js
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Shared Constants (moved verbatim from the original file)
-// - NOAA base URLs & file extensions
-// - Climate normals window
-// - Month/season metadata
-// - Datatype identifiers
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 const mainURL = 'https://www.ncei.noaa.gov/data';
 const countyTempExt = '/nclimdiv-monthly/access/climdiv-tmpccy-v1.0.0-20240806';
 const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240806';

@@ -1,9 +1,8 @@
 // src/services/distances.service.js
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Distance calculations (verbatim logic preserved)
+// Distance calculations
 // Now opens a NEW DB connection for EACH individual execute() call.
-// Public API signatures unchanged so existing callers keep working.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const {pool} = require('../config/db');
@@ -33,44 +32,30 @@ async function runWithNewConnection(query) {
   }
 }
 
-/**
- * Verbatim calculatePrecipDistances(connection)
- * (connection param kept for API compatibility; it is intentionally ignored.)
- */
-async function calculatePrecipDistances(/* connection */) {
+
+async function calculatePrecipDistances() {
   console.log('Calculating Precip variable distances!');
   await runWithNewConnection(calculateMonthlyPrecipDistancesQuery);
   await runWithNewConnection(calculateSeasonalPrecipDistancesQuery);
   await runWithNewConnection(calculateYearlyPrecipDistancesQuery);
 }
 
-/**
- * Verbatim calculateTempDistances(connection)
- * (connection param kept for API compatibility; it is intentionally ignored.)
- */
-async function calculateTempDistances(/* connection */) {
+
+async function calculateTempDistances() {
   console.log('Calculating Temp variable distances!');
   await runWithNewConnection(calculateMonthlyTempDistancesQuery);
   await runWithNewConnection(calculateSeasonalTempDistancesQuery);
   await runWithNewConnection(calculateYearlyTempDistancesQuery);
 }
 
-/**
- * Verbatim calculateTwoVariableDistances(connection)
- * (connection param kept for API compatibility; it is intentionally ignored.)
- */
-async function calculateTwoVariableDistances(/* connection */) {
+
+async function calculateTwoVariableDistances() {
   console.log('Calculating Combined variable distances!');
   await runWithNewConnection(calculateMonthlyCombinedDistancesQuery);
   await runWithNewConnection(calculateSeasonalCombinedDistancesQuery);
   await runWithNewConnection(calculateYearlyCombinedDistancesQuery);
 }
 
-/**
- * Verbatim calculateAndInsertEuclideanDistances()
- * Preserves the original return shape (including undefined 'responseData').
- * No single shared connection is opened here anymore — each execute has its own.
- */
 async function calculateAndInsertEuclideanDistances() {
   try {
 
@@ -84,12 +69,14 @@ async function calculateAndInsertEuclideanDistances() {
 
     return {
       success: true,
-      data: 'Euclidean distance calculations completed', // or null if you prefer
+      status: 200,
+      data: 'Euclidean distance calculations completed', 
     };
   } catch (error) {
     console.error('Error inserting data:', error);
     return {
       success: false,
+      status: 500,
       error: `Error inserting data: ${error.message}`,
     };
   }

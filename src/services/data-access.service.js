@@ -2,7 +2,6 @@
 // src/services/data-access.service.js
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Data Accessors (Year / Season / Month) – DB Calls
-// - Preserves original logic, console logs, Promise.all wrapping, and return shapes.
 // - getTopAnalogsByYear
 // - getDataByYear
 // - getTopAnalogsBySeason
@@ -38,7 +37,6 @@ const {
 
 /**
  * Define the function to call the stored procedure and return the results as a JSON object
- * (getTopAnalogsByYear) — preserved verbatim.
  */
 async function getTopAnalogsByYear(targetCountyName, dataType) {
   var connection;
@@ -84,9 +82,7 @@ async function getTopAnalogsByYear(targetCountyName, dataType) {
   }
 }
 
-/**
- * getDataByYear — preserved verbatim.
- */
+
 async function getDataByYear(targetCounty, yearNumber, dataType) {
   var connection;
 
@@ -131,9 +127,7 @@ async function getDataByYear(targetCounty, yearNumber, dataType) {
   }
 }
 
-/**
- * getTopAnalogsBySeason — preserved verbatim.
- */
+
 async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType) {
   var connection;
 
@@ -178,9 +172,6 @@ async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType) {
   }
 }
 
-/**
- * getDataBySeason — preserved verbatim.
- */
 async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType) {
   var connection;
 
@@ -225,9 +216,7 @@ async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataTyp
   }
 }
 
-/**
- * getTopAnalogsByMonth — preserved verbatim.
- */
+
 async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
   var connection;
 
@@ -272,9 +261,6 @@ async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
   }
 }
 
-/**
- * getDataByMonth — preserved verbatim.
- */
 async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType) {
   var connection;
 

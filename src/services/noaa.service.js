@@ -1,8 +1,7 @@
 // src/services/noaa.service.js
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOAA fetch service (verbatim behavior preserved for fetchDataFromAPI)
+// NOAA fetch service
 // - Responsible for fetching a NOAA file via HTTP and delegating parsing/inserts.
-// - Keeps the original scale branching and error handling identical.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const axios = require('axios');

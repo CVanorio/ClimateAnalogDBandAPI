@@ -1,11 +1,5 @@
 // src/sql/queries.js
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// SQL / Stored Procedure Strings
-// Extracted verbatim from original file.
-// Grouped by category: Insert, Calculate Distances, Get Analogs, Other
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Insert data from NOAA files
 // Monthly
 const insertTargetStateCountyMonthlyPrecipQuery = 'CALL InsertMonthlyPrecipitationTargetState(?, ?, ?, ?);';

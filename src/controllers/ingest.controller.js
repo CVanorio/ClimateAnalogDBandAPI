@@ -22,7 +22,14 @@ async function addAllCountyData(req, res) {
     console.log('Calculating distances');
     distanceResult = await calculateAndInsertEuclideanDistances();
 
-    res.send('All county data added successfully.');
+    if (!distanceResult.success) {
+      // bubble up the proper HTTP status + error payload
+      return res.status(distanceResult.status || 500).json(distanceResult);
+    }
+
+    // success
+    return res.status(200).send('All county data added successfully.');
+    
   } catch (error) {
     if (error.response) {
       console.error('Error response from server:', error.response.status, error.response.data);

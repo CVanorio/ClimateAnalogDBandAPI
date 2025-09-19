@@ -1,35 +1,43 @@
 // src/server.js
-const express = require('express');
-const cors = require('cors');
-const killPort = require('kill-port');
 
-require('dotenv').config();
+// Lightweight HTTP server bootstrap for the API.
+
+const express = require('express'); // Web framework
+const cors = require('cors');       // Cross-origin requests
+const killPort = require('kill-port'); // Ensures port is free before starting
+
+require('dotenv').config(); // Load environment variables from .env
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Prefer env var, fallback to 3000
 
-app.use(cors());
-app.use(express.json());
+// Global middleware
+app.use(cors());            // Allow CORS for all routes
+app.use(express.json());    // Parse JSON bodies
 
-// routes
+// Route modules (keep imports at top-level to attach below)
 const ingestRoutes = require('./src/routes/ingest.routes');
 const dataRoutes   = require('./src/routes/data.routes');
 const adminRoutes  = require('./src/routes/admin.routes');
 
-// mount
+// Mount routes (mount order can matter if prefixes overlap)
 app.use(ingestRoutes);
 app.use(dataRoutes);
 app.use(adminRoutes);
 
-// cron
+// Cron (scheduled NOAA sync)
 const {startNOAACronJob} = require('./src/cron/syncData');
 
 async function startServer(port) {
   try {
+    // Avoid "EADDRINUSE" by killing any process already bound to the port
     await killPort(port, 'tcp');
+
+    // Start HTTP server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
-      // start cron AFTER server is listening (so /addallcountydata is reachable)
+
+      // Start cron AFTER server is listening so it can call /addallcountydata
       startNOAACronJob();
     });
   } catch (err) {
@@ -37,6 +45,7 @@ async function startServer(port) {
   }
 }
 
+// Entrypoint
 startServer(PORT);
 
-module.exports = app;
+module.exports = app; // Export for testing or external usage
