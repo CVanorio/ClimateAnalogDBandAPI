@@ -517,12 +517,10 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
         await calculateNorms(yearData, prevDecember, normProps, connection);
       }
 
-      // Target state filter: null => all states; string/array => restrict
+      // Target state filter: null => all states; array => restrict
       const isTargetState =
         TARGET_STATE_CODE == null ||
-        (Array.isArray(TARGET_STATE_CODE)
-          ? TARGET_STATE_CODE.includes(yearData.StateCode)
-          : yearData.StateCode === TARGET_STATE_CODE);
+       (TARGET_STATE_CODE.includes(Number(yearData.StateCode)));
 
       if (isTargetState) {
         await insertTargetStateMonthlyData(yearData, connection, latestYearMonth);

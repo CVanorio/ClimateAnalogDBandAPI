@@ -7,7 +7,7 @@ const countyPrecipExt = '/nclimdiv-monthly/access/climdiv-pcpncy-v1.0.0-20240806
 
 const climateNormalYears = [1991, 2020];
 
-const TARGET_STATE_CODE = ['47']; // or '47', or null
+const TARGET_STATE_CODE = [47]; // or [47, 04], or null
 const NEW_CLIMATE_NORMALS = false; // set to true to recalculate all norms for new climate normals on next data load
 
 
@@ -46,5 +46,5 @@ module.exports = {
   precipDatatype,
   tempDatatype,
   TARGET_STATE_CODE,
-  NEW_CLIMATE_NORMALS
+  NEW_CLIMATE_NORMALS,
 };

@@ -32,35 +32,35 @@ const calculateYearlyTempDistancesQuery     = 'CALL CalculateYearlyTemperatureDi
 const calculateYearlyCombinedDistancesQuery = 'CALL CalculateYearlyCombinedDistances();';
 
 // Get yearly top analogs
-const getTopPrecipitationAnalogsByYearQuery = 'CALL GetAllTopPrecipAnalogsForCountyByYear(?);';
-const getTopTemperatureAnalogsByYearQuery   = 'CALL GetAllTopTempAnalogsForCountyByYear(?);';
-const getTopCombinedAnalogsByYearQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByYear(?);';
+const getTopPrecipitationAnalogsByYearQuery = 'CALL GetAllTopPrecipAnalogsForCountyByYear(?, ?);';
+const getTopTemperatureAnalogsByYearQuery   = 'CALL GetAllTopTempAnalogsForCountyByYear(?, ?);';
+const getTopCombinedAnalogsByYearQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByYear(?, ?);';
 // Get yearly analogs by year
-const getPrecipitationAnalogsByYearQuery = 'CALL GetTopPrecipAnalogsForCountyByYear(?, ?);';
-const getTemperatureAnalogsByYearQuery   = 'CALL GetTopTempAnalogsForCountyByYear(?, ?);';
-const getCombinedAnalogsByYearQuery      = 'CALL GetTopCombinedAnalogsForCountyByYear(?, ?);';
+const getPrecipitationAnalogsByYearQuery = 'CALL GetTopPrecipAnalogsForCountyByYear(?, ?, ?);';
+const getTemperatureAnalogsByYearQuery   = 'CALL GetTopTempAnalogsForCountyByYear(?, ?, ?);';
+const getCombinedAnalogsByYearQuery      = 'CALL GetTopCombinedAnalogsForCountyByYear(?, ?, ?);';
 
 // Get seasonal top analogs
-const getTopPrecipitationAnalogsBySeasonQuery = 'CALL GetAllTopPrecipAnalogsForCountyBySeason(?, ?);';
-const getTopTemperatureAnalogsBySeasonQuery   = 'CALL GetAllTopTempAnalogsForCountyBySeason(?, ?);';
-const getTopCombinedAnalogsBySeasonQuery      = 'CALL GetAllTopCombinedAnalogsForCountyBySeason(?, ?);';
+const getTopPrecipitationAnalogsBySeasonQuery = 'CALL GetAllTopPrecipAnalogsForCountyBySeason(?, ?, ?);';
+const getTopTemperatureAnalogsBySeasonQuery   = 'CALL GetAllTopTempAnalogsForCountyBySeason(?, ?, ?);';
+const getTopCombinedAnalogsBySeasonQuery      = 'CALL GetAllTopCombinedAnalogsForCountyBySeason(?, ?, ?);';
 // Get seasonal analogs by year
-const getPrecipitationAnalogsBySeasonQuery = 'CALL GetPrecipAnalogsForCountyByYearAndSeason(?, ?, ?);';
-const getTemperatureAnalogsBySeasonQuery   = 'CALL GetTempAnalogsForCountyByYearAndSeason(?, ?, ?);';
-const getCombinedAnalogsBySeasonQuery      = 'CALL GetCombinedAnalogsForCountyByYearAndSeason(?, ?, ?);';
+const getPrecipitationAnalogsBySeasonQuery = 'CALL GetPrecipAnalogsForCountyByYearAndSeason(?, ?, ?, ?);';
+const getTemperatureAnalogsBySeasonQuery   = 'CALL GetTempAnalogsForCountyByYearAndSeason(?, ?, ?, ?);';
+const getCombinedAnalogsBySeasonQuery      = 'CALL GetCombinedAnalogsForCountyByYearAndSeason(?, ?, ?, ?);';
 
 // Get monthly top analogs
-const getTopPrecipitationAnalogsByMonthQuery = 'CALL GetAllTopPrecipAnalogsForCountyByMonth(?, ?);';
-const getTopTemperatureAnalogsByMonthQuery   = 'CALL GetAllTopTempAnalogsForCountyByMonth(?, ?);';
-const getTopCombinedAnalogsByMonthQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByMonth(?, ?);';
+const getTopPrecipitationAnalogsByMonthQuery = 'CALL GetAllTopPrecipAnalogsForCountyByMonth(?, ?, ?);';
+const getTopTemperatureAnalogsByMonthQuery   = 'CALL GetAllTopTempAnalogsForCountyByMonth(?, ?, ?);';
+const getTopCombinedAnalogsByMonthQuery      = 'CALL GetAllTopCombinedAnalogsForCountyByMonth(?, ?, ?);';
 // Get monthly analogs by year
-const getPrecipitationAnalogsByMonthQuery = 'CALL GetPrecipAnalogsForCountyByYearAndMonth(?, ?, ?);';
-const getTemperatureAnalogsByMonthQuery   = 'CALL GetTempAnalogsForCountyByYearAndMonth(?, ?, ?);';
-const getCombinedAnalogsByMonthQuery      = 'CALL GetCombinedAnalogsForCountyByYearAndMonth(?, ?, ?);';
+const getPrecipitationAnalogsByMonthQuery = 'CALL GetPrecipAnalogsForCountyByYearAndMonth(?, ?, ?, ?);';
+const getTemperatureAnalogsByMonthQuery   = 'CALL GetTempAnalogsForCountyByYearAndMonth(?, ?, ?, ?);';
+const getCombinedAnalogsByMonthQuery      = 'CALL GetCombinedAnalogsForCountyByYearAndMonth(?, ?, ?, ?);';
 
 // Other queries
 const getCountyIdByStateAndCountyCodes = 'CALL GetCountyIDByCodeAndState(?, ?);';
-const getTopAnalogsForTargetByYear     = 'CALL GetTopAnalogForTargetByYear(?);';
+const getTopAnalogsForTargetByYear     = 'CALL GetTopAnalogForTargetByYear(?, ?);';
 const insertCountyQuery = 'CALL InsertCounty(?, ?, ?, ?, ?)';
 const insertStateQuery  = 'CALL InsertState(?, ?, ?)';
 

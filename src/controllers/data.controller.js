@@ -11,7 +11,7 @@ const {
 } = require('../services/data-access.service');
 
 async function getData(req, res) {
-  const { targetCounty, timeScale, timeScaleValue, year, dataType } = req.query;
+  const { targetCounty, timeScale, timeScaleValue, year, dataType, targetState } = req.query;
 
   try {
     console.log("Inside getData");
@@ -23,23 +23,23 @@ async function getData(req, res) {
     if (timeScale === 'by_year') {
       if (year === 'top_analogs') {
         console.log("In top analogs by year");
-        result = await getTopAnalogsByYear(targetCounty, dataType);
+        result = await getTopAnalogsByYear(targetCounty, dataType, targetState);
       } else if (!isNaN(yearNumber)) {
-        result = await getDataByYear(targetCounty, yearNumber, dataType);
+        result = await getDataByYear(targetCounty, yearNumber, dataType, targetState);
       }
     } else if (timeScale === 'by_season') {
       if (year === 'top_analogs') {
         console.log("In top analogs by season");
-        result = await getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType);
+        result = await getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType, targetState);
       } else if (!isNaN(yearNumber)) {
-        result = await getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType);
+        result = await getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType, targetState);
       }
     } else if (timeScale === 'by_month') {
       if (year === 'top_analogs') {
         console.log("In top analogs by month");
-        result = await getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType);
+        result = await getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType, targetState);
       } else if (!isNaN(yearNumber)) {
-        result = await getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType);
+        result = await getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType, targetState);
       }
     } else {
       throw new Error('Invalid timeScale');
