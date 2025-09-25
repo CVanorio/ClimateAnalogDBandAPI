@@ -174,7 +174,7 @@ async function getTopAnalogsBySeason(targetCounty, timeScaleValue, dataType, tar
   }
 }
 
-async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType) {
+async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataType, targetState) {
   var connection;
 
   try {
@@ -219,7 +219,7 @@ async function getDataBySeason(targetCounty, yearNumber, timeScaleValue, dataTyp
 }
 
 
-async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
+async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType, targetState) {
   var connection;
 
   try {
@@ -263,7 +263,7 @@ async function getTopAnalogsByMonth(targetCounty, timeScaleValue, dataType) {
   }
 }
 
-async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType) {
+async function getDataByMonth(targetCounty, yearNumber, timeScaleValue, dataType, targetState) {
   var connection;
 
   try {

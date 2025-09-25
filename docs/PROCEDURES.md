@@ -1,17 +1,35 @@
-# Stored Procedures & Functions
-
-## `CalculateAllMonthlyCombinedDistances`
-
-**Signature**
-
 ```sql
-PROCEDURE CalculateAllMonthlyCombinedDistances()
-```
+-- MySQL dump 10.13  Distrib 8.0.37, for Win64 (x86_64)
+--
+-- Host: wwwtest.climatology.nelson.wisc.edu    Database: climate-change-app
+-- ------------------------------------------------------
+-- Server version	8.0.43
 
-<details>
-<summary>Body</summary>
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-```sql
+--
+-- Dumping routines for database 'climate-change-app'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyCombinedDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyCombinedDistances`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_TargetStateCountyID INT;
@@ -29,22 +47,29 @@ BEGIN
         
         IF v_done THEN
             LEAVE county_loop;
-        END
-```
-</details>
+        END IF;
+        
+        CALL CalculateMonthlyCombinedDistancesForCounty(v_TargetStateCountyID);
+    END LOOP county_loop;
 
-## `CalculateAllMonthlyDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateAllMonthlyDistancesForCounty(IN p_targetCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_TargetStateCountyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyDistancesForCounty`(IN p_targetCountyID INT)
 BEGIN
     
     REPLACE INTO monthly_precipitation_distances (TargetCountyID, AnalogCountyID, Year, Month, Distance, AnalogRank)
@@ -166,22 +191,23 @@ BEGIN
     DELETE FROM monthly_temperature_distances 
     WHERE TargetCountyID = p_targetCountyID AND AnalogRank > 150;
 
-END
-```
-</details>
-
-## `CalculateAllMonthlyDistancesForTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateAllMonthlyDistancesForTargetState()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyDistancesForTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyDistancesForTargetState`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_targetCountyID INT;
@@ -197,22 +223,69 @@ BEGIN
 
         IF v_done THEN
             LEAVE county_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateAllSeasonalCombinedDistances`
+        
+        CALL CalculateAllMonthlyDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
 
-**Signature**
+    CLOSE v_countyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllMonthlyDistancesForWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllMonthlyDistancesForWI`()
+BEGIN
+    DECLARE v_done INT DEFAULT FALSE;
+    DECLARE v_targetCountyID INT;
+    DECLARE v_countyCursor CURSOR FOR 
+        SELECT CountyID FROM Counties WHERE StateCode = '47';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-```sql
-PROCEDURE CalculateAllSeasonalCombinedDistances()
-```
+    OPEN v_countyCursor;
 
-<details>
-<summary>Body</summary>
+    
+    county_loop: LOOP
+        FETCH v_countyCursor INTO v_targetCountyID;
 
-```sql
+        IF v_done THEN
+            LEAVE county_loop;
+        END IF;
+
+        
+        CALL CalculateAllMonthlyDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
+
+    CLOSE v_countyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllSeasonalCombinedDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalCombinedDistances`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_TargetStateCountyID INT;
@@ -227,22 +300,29 @@ BEGIN
         
         IF v_done THEN
             LEAVE county_loop;
-        END
-```
-</details>
+        END IF;
+        
+        CALL CalculateSeasonalCombinedDistancesForCounty(v_TargetStateCountyID);
+    END LOOP county_loop;
 
-## `CalculateAllSeasonalDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateAllSeasonalDistancesForCounty(IN p_targetCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_TargetStateCountyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllSeasonalDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalDistancesForCounty`(IN p_targetCountyID INT)
 BEGIN
     
     REPLACE INTO seasonal_precipitation_distances (TargetCountyID, AnalogCountyID, Year, Season, Distance, AnalogRank)
@@ -366,22 +446,23 @@ BEGIN
     DELETE FROM seasonal_temperature_distances 
     WHERE TargetCountyID = p_targetCountyID AND AnalogRank > 150;
 
-END
-```
-</details>
-
-## `CalculateAllSeasonalDistancesForTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateAllSeasonalDistancesForTargetState()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllSeasonalDistancesForTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalDistancesForTargetState`()
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_targetCountyID INT;
@@ -397,22 +478,69 @@ BEGIN
 
         IF v_done THEN
             LEAVE county_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateMonthlyCombinedDistances`
+        
+        CALL CalculateAllSeasonalDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
 
-**Signature**
+    CLOSE v_countyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateAllSeasonalDistancesForWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateAllSeasonalDistancesForWI`()
+BEGIN
+    DECLARE v_done INT DEFAULT FALSE;
+    DECLARE v_targetCountyID INT;
+    DECLARE v_countyCursor CURSOR FOR 
+        SELECT CountyID FROM Counties WHERE StateCode = '47';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-```sql
-PROCEDURE CalculateMonthlyCombinedDistances()
-```
+    OPEN v_countyCursor;
 
-<details>
-<summary>Body</summary>
+    
+    county_loop: LOOP
+        FETCH v_countyCursor INTO v_targetCountyID;
 
-```sql
+        IF v_done THEN
+            LEAVE county_loop;
+        END IF;
+
+        
+        CALL CalculateAllSeasonalDistancesForCounty(v_targetCountyID);
+    END LOOP county_loop;
+
+    CLOSE v_countyCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyCombinedDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyCombinedDistances`()
 BEGIN
   
   REPLACE INTO monthly_combined_distances
@@ -437,22 +565,23 @@ BEGIN
   
   
 
-END
-```
-</details>
-
-## `CalculateMonthlyCombinedDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateMonthlyCombinedDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyCombinedDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -476,22 +605,49 @@ BEGIN
         
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateMonthlyPrecipitationDistances`
+        
+        SELECT Distance INTO v_tempDistance
+        FROM monthly_temperature_distances_TEMP
+        WHERE TargetCountyID = p_TargetStateCountyID
+          AND AnalogCountyID = v_analogCountyID
+          AND Year = v_year
+          AND Month = v_month
+        LIMIT 1;
 
-**Signature**
+        
+        SET v_combinedDistance = ROUND(SQRT(POW(v_precipDistance, 2) + POW(v_tempDistance, 2)), 2);
 
-```sql
-PROCEDURE CalculateMonthlyPrecipitationDistances()
-```
+        
+        REPLACE INTO monthly_combined_distances (
+            TargetCountyID, AnalogCountyID, Year, Month, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_combinedDistance
+        );
 
-<details>
-<summary>Body</summary>
+      
+    END LOOP analog_loop;
 
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyPrecipitationDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyPrecipitationDistances`()
 BEGIN
   TRUNCATE TABLE monthly_precipitation_distances_TEMP;
 
@@ -511,22 +667,23 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Month, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Month, Distance
   FROM monthly_precipitation_distances_TEMP;
-END
-```
-</details>
-
-## `CalculateMonthlyPrecipitationDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateMonthlyPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyPrecipitationDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -554,22 +711,43 @@ BEGIN
         
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateMonthlyTemperatureDistances`
+        
+        REPLACE INTO monthly_precipitation_distances (
+            TargetCountyID, AnalogCountyID, Year, Month, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_precipDistance
+        );
 
-**Signature**
+        
+        REPLACE INTO monthly_precipitation_distances_TEMP (
+            TargetCountyID, AnalogCountyID, Year, Month, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_precipDistance
+        );
+    END LOOP analog_loop;
 
-```sql
-PROCEDURE CalculateMonthlyTemperatureDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyTemperatureDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyTemperatureDistances`()
 BEGIN
   TRUNCATE TABLE monthly_temperature_distances_TEMP;
 
@@ -589,22 +767,23 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Month, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Month, Distance
   FROM monthly_temperature_distances_TEMP;
-END
-```
-</details>
-
-## `CalculateMonthlyTemperatureDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateMonthlyTemperatureDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateMonthlyTemperatureDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateMonthlyTemperatureDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -631,22 +810,43 @@ BEGIN
         
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
+        
+        
+        REPLACE INTO monthly_temperature_distances (
+            TargetCountyID, AnalogCountyID, Year, Month, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_tempDistance
+        );
 
-## `CalculateSeasonalCombinedDistances`
+        
+        REPLACE INTO monthly_temperature_distances_TEMP (
+            TargetCountyID, AnalogCountyID, Year, Month, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_month, v_tempDistance
+        );
+    END LOOP analog_loop;
 
-**Signature**
-
-```sql
-PROCEDURE CalculateSeasonalCombinedDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalCombinedDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalCombinedDistances`()
 BEGIN
   
   REPLACE INTO seasonal_combined_distances
@@ -670,22 +870,23 @@ BEGIN
   
   
   
-END
-```
-</details>
-
-## `CalculateSeasonalCombinedDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateSeasonalCombinedDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalCombinedDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -709,22 +910,48 @@ BEGIN
         
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
+        
+        
+        SELECT Distance INTO v_tempDistance
+        FROM seasonal_temperature_distances_TEMP
+        WHERE TargetCountyID = p_TargetStateCountyID
+          AND AnalogCountyID = v_analogCountyID
+          AND Year = v_year
+          AND Season = v_season
+        LIMIT 1;
 
-## `CalculateSeasonalPrecipitationDistances`
+        
+        SET v_combinedDistance = ROUND(SQRT(POW(v_precipDistance, 2) + POW(v_tempDistance, 2)), 2);
 
-**Signature**
+        
+        REPLACE INTO seasonal_combined_distances (
+            TargetCountyID, AnalogCountyID, Year, Season, Distance
+        )
+        VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_combinedDistance
+        );
 
-```sql
-PROCEDURE CalculateSeasonalPrecipitationDistances()
-```
+    END LOOP analog_loop;
 
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalPrecipitationDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalPrecipitationDistances`()
 BEGIN
   TRUNCATE TABLE seasonal_precipitation_distances_TEMP;
 
@@ -744,22 +971,23 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Season, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Season, Distance
   FROM seasonal_precipitation_distances_TEMP;
-END
-```
-</details>
-
-## `CalculateSeasonalPrecipitationDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateSeasonalPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalPrecipitationDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -783,22 +1011,41 @@ BEGIN
 
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateSeasonalTemperatureDistances`
+        
+        REPLACE INTO seasonal_precipitation_distances (
+            TargetCountyID, AnalogCountyID, Year, Season, Distance
+        ) VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_precipDistance
+        );
 
-**Signature**
+        
+        REPLACE INTO seasonal_precipitation_distances_TEMP (
+            TargetCountyID, AnalogCountyID, Year, Season, Distance
+        ) VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_precipDistance
+        );
+    END LOOP analog_loop;
 
-```sql
-PROCEDURE CalculateSeasonalTemperatureDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalTemperatureDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalTemperatureDistances`()
 BEGIN
   TRUNCATE TABLE seasonal_temperature_distances_TEMP;
 
@@ -818,22 +1065,23 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Season, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Season, Distance
   FROM seasonal_temperature_distances_TEMP;
-END
-```
-</details>
-
-## `CalculateSeasonalTemperatureDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateSeasonalTemperatureDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateSeasonalTemperatureDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateSeasonalTemperatureDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -857,22 +1105,41 @@ BEGIN
 
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateYearlyCombinedDistances`
+        
+        REPLACE INTO seasonal_temperature_distances (
+            TargetCountyID, AnalogCountyID, Year, Season, Distance
+        ) VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_tempDistance
+        );
 
-**Signature**
+        
+        REPLACE INTO seasonal_temperature_distances_TEMP (
+            TargetCountyID, AnalogCountyID, Year, Season, Distance
+        ) VALUES (
+            p_TargetStateCountyID, v_analogCountyID, v_year, v_season, v_tempDistance
+        );
+    END LOOP analog_loop;
 
-```sql
-PROCEDURE CalculateYearlyCombinedDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateYearlyCombinedDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyCombinedDistances`()
 BEGIN
   REPLACE INTO yearly_combined_distances
     (TargetCountyID, AnalogCountyID, Year, Distance)
@@ -893,22 +1160,23 @@ BEGIN
   
   
 
-END
-```
-</details>
-
-## `CalculateYearlyCombinedDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateYearlyCombinedDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateYearlyCombinedDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyCombinedDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -931,22 +1199,41 @@ BEGIN
         
         IF v_done THEN
             LEAVE analog_loop;
-        END
-```
-</details>
+        END IF;
 
-## `CalculateYearlyPrecipitationDistances`
+        
+        SELECT Distance INTO v_tempDistance
+        FROM yearly_temperature_distances_TEMP
+        WHERE TargetCountyID = p_TargetStateCountyID
+          AND AnalogCountyID = v_analogCountyID
+          AND Year = v_year
+        LIMIT 1;
 
-**Signature**
+        
+        SET v_combinedDistance = ROUND(SQRT(POW(v_precipDistance, 2) + POW(v_tempDistance, 2)), 2);
 
-```sql
-PROCEDURE CalculateYearlyPrecipitationDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+        
+        REPLACE INTO yearly_combined_distances (TargetCountyID, AnalogCountyID, Year, Distance)
+        VALUES (p_TargetStateCountyID, v_analogCountyID, v_year, v_combinedDistance);
+    END LOOP analog_loop;
+    CLOSE v_analogCursor;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateYearlyPrecipitationDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyPrecipitationDistances`()
 BEGIN
   
   TRUNCATE TABLE yearly_precipitation_distances_TEMP;
@@ -966,22 +1253,23 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Distance
   FROM yearly_precipitation_distances_TEMP;
-END
-```
-</details>
-
-## `CalculateYearlyPrecipitationDistancesForCounty`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateYearlyPrecipitationDistancesForCounty(p_TargetStateCountyID INT)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateYearlyPrecipitationDistancesForCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyPrecipitationDistancesForCounty`(p_TargetStateCountyID INT)
 BEGIN
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_analogCountyID INT;
@@ -1032,22 +1320,23 @@ BEGIN
     
     DROP TEMPORARY TABLE IF EXISTS TempYearlyPrecipitationDistances;
 
-END
-```
-</details>
-
-## `CalculateYearlyTemperatureDistances`
-
-**Signature**
-
-```sql
-PROCEDURE CalculateYearlyTemperatureDistances()
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `CalculateYearlyTemperatureDistances` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `CalculateYearlyTemperatureDistances`()
 BEGIN
   TRUNCATE TABLE yearly_temperature_distances_TEMP;
 
@@ -1065,32 +1354,35 @@ BEGIN
     (TargetCountyID, AnalogCountyID, Year, Distance)
   SELECT TargetCountyID, AnalogCountyID, Year, Distance
   FROM yearly_temperature_distances_TEMP;
-END
-```
-</details>
-
-## `GetAllTopCombinedAnalogsForCountyByMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopCombinedAnalogsForCountyByMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Month VARCHAR(2)
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopCombinedAnalogsForCountyByMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopCombinedAnalogsForCountyByMonth`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1146,32 +1438,36 @@ BEGIN
               AND d.Month = p_Month
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopCombinedAnalogsForCountyBySeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopCombinedAnalogsForCountyBySeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Season VARCHAR(6)
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopCombinedAnalogsForCountyBySeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopCombinedAnalogsForCountyBySeason`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1229,30 +1525,34 @@ BEGIN
               AND d.Season = p_Season
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopCombinedAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopCombinedAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopCombinedAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopCombinedAnalogsForCountyByYear`(IN p_TargetCountyName VARCHAR(100),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1306,32 +1606,36 @@ BEGIN
             WHERE d.TargetCountyID = v_TargetCountyID 
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopPrecipAnalogsForCountyByMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopPrecipAnalogsForCountyByMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Month VARCHAR(2)
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopPrecipAnalogsForCountyByMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopPrecipAnalogsForCountyByMonth`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1381,32 +1685,36 @@ BEGIN
               AND d.Month = p_Month
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopPrecipAnalogsForCountyBySeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopPrecipAnalogsForCountyBySeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Season VARCHAR(6)
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopPrecipAnalogsForCountyBySeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopPrecipAnalogsForCountyBySeason`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1456,30 +1764,34 @@ BEGIN
               AND d.Season = p_Season
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopPrecipAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopPrecipAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopPrecipAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopPrecipAnalogsForCountyByYear`(IN p_TargetCountyName VARCHAR(100),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1527,32 +1839,36 @@ BEGIN
             WHERE d.TargetCountyID = v_TargetCountyID 
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopTempAnalogsForCountyByMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopTempAnalogsForCountyByMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Month VARCHAR(2)
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopTempAnalogsForCountyByMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopTempAnalogsForCountyByMonth`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1602,32 +1918,36 @@ BEGIN
               AND d.Month = p_Month
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopTempAnalogsForCountyBySeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopTempAnalogsForCountyBySeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Season VARCHAR(6)
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopTempAnalogsForCountyBySeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopTempAnalogsForCountyBySeason`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1677,30 +1997,34 @@ BEGIN
               AND d.Season = p_Season
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetAllTopTempAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetAllTopTempAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllTopTempAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetAllTopTempAnalogsForCountyByYear`(IN p_TargetCountyName VARCHAR(100),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1748,33 +2072,37 @@ BEGIN
             WHERE d.TargetCountyID = v_TargetCountyID 
         ) AS subquery
         WHERE subquery.rn = 1;
-    END
-```
-</details>
-
-## `GetCombinedAnalogsForCountyByYearAndMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetCombinedAnalogsForCountyByYearAndMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetCombinedAnalogsForCountyByYearAndMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetCombinedAnalogsForCountyByYearAndMonth`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Month VARCHAR(2)
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1816,33 +2144,37 @@ BEGIN
         )
         SELECT * FROM RankedAnalogs
         WHERE RowNumber <= 50;  
-    END
-```
-</details>
-
-## `GetCombinedAnalogsForCountyByYearAndSeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetCombinedAnalogsForCountyByYearAndSeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetCombinedAnalogsForCountyByYearAndSeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetCombinedAnalogsForCountyByYearAndSeason`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Season VARCHAR(6)
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1884,56 +2216,61 @@ BEGIN
         )
         SELECT * FROM RankedAnalogs
         WHERE RowNumber <= 50;  
-    END
-```
-</details>
-
-## `GetCountyIDByCodeAndState`
-
-**Signature**
-
-```sql
-PROCEDURE GetCountyIDByCodeAndState(IN p_CountyCode VARCHAR(3)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetCountyIDByCodeAndState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetCountyIDByCodeAndState`(
+    IN p_CountyCode VARCHAR(3),
     IN p_StateCode VARCHAR(2)
 )
 BEGIN
     SELECT CountyID 
     FROM Counties 
     WHERE CountyCode = p_CountyCode AND StateCode = p_StateCode;
-END
-```
-</details>
-
-## `GetPrecipAnalogsForCountyByYearAndMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetPrecipAnalogsForCountyByYearAndMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetPrecipAnalogsForCountyByYearAndMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetPrecipAnalogsForCountyByYearAndMonth`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Month VARCHAR(2)
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -1970,33 +2307,37 @@ BEGIN
         )
         SELECT * FROM RankedPrecipAnalogs
         WHERE RowNumber <= 150;  
-    END
-```
-</details>
-
-## `GetPrecipAnalogsForCountyByYearAndSeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetPrecipAnalogsForCountyByYearAndSeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetPrecipAnalogsForCountyByYearAndSeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetPrecipAnalogsForCountyByYearAndSeason`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Season VARCHAR(6)
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -2033,33 +2374,37 @@ BEGIN
         )
         SELECT * FROM RankedPrecipAnalogs
         WHERE RowNumber <= 150;  
-    END
-```
-</details>
-
-## `GetTempAnalogsForCountyByYearAndMonth`
-
-**Signature**
-
-```sql
-PROCEDURE GetTempAnalogsForCountyByYearAndMonth(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetTempAnalogsForCountyByYearAndMonth` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetTempAnalogsForCountyByYearAndMonth`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Month VARCHAR(2)
+    IN p_Month VARCHAR(2),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -2096,35 +2441,38 @@ BEGIN
         )
         SELECT * FROM RankedTempAnalogs
         WHERE RowNumber <= 150;  
-    END
-```
-</details>
-
-## `GetTempAnalogsForCountyByYearAndSeason`
-
-**Signature**
-
-```sql
-PROCEDURE GetTempAnalogsForCountyByYearAndSeason(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetTempAnalogsForCountyByYearAndSeason` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetTempAnalogsForCountyByYearAndSeason`(
+    IN p_TargetCountyName VARCHAR(100),
     IN p_Year INT,
-    IN p_Season VARCHAR(6)
+    IN p_Season VARCHAR(6),
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
-
     
     IF v_TargetCountyID IS NULL THEN
         SELECT 'Target county not found' AS Error;
@@ -2158,32 +2506,36 @@ BEGIN
         )
         SELECT * FROM RankedTempAnalogs
         WHERE RowNumber <= 150;  
-    END
-```
-</details>
-
-## `GetTopCombinedAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetTopCombinedAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Year INT
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetTopCombinedAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetTopCombinedAnalogsForCountyByYear`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Year INT,
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -2241,32 +2593,36 @@ BEGIN
         ) AS subquery
         WHERE subquery.rn <= 50 
         ORDER BY subquery.rn;
-    END
-```
-</details>
-
-## `GetTopPrecipAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetTopPrecipAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Year INT
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetTopPrecipAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetTopPrecipAnalogsForCountyByYear`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Year INT,
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -2318,32 +2674,36 @@ BEGIN
         ) AS subquery
         WHERE subquery.rn <= 150 
         ORDER BY subquery.rn;
-    END
-```
-</details>
-
-## `GetTopTempAnalogsForCountyByYear`
-
-**Signature**
-
-```sql
-PROCEDURE GetTopTempAnalogsForCountyByYear(IN p_TargetCountyName VARCHAR(100)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
-    IN p_Year INT
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetTopTempAnalogsForCountyByYear` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `GetTopTempAnalogsForCountyByYear`(
+    IN p_TargetCountyName VARCHAR(100),
+    IN p_Year INT,
+    IN p_TargetStateCode VARCHAR(2)
 )
 BEGIN
     DECLARE v_TargetCountyID INT;
 
-    
-    SELECT CountyID INTO v_TargetCountyID
-    FROM Counties
-    WHERE CountyName = p_TargetCountyName
+     
+    SELECT c.CountyID INTO v_TargetCountyID
+    FROM Counties c
+    WHERE c.CountyName = p_TargetCountyName
+      AND c.StateCode = p_TargetStateCode
     LIMIT 1;
 
     
@@ -2395,23 +2755,25 @@ BEGIN
         ) AS subquery
         WHERE subquery.rn <= 150 
         ORDER BY subquery.rn;
-    END
-```
-</details>
-
-## `InsertCounty`
-
-**Signature**
-
-```sql
-PROCEDURE InsertCounty(IN p_CountyCode VARCHAR(3)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertCounty` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertCounty`(
+    IN p_CountyCode VARCHAR(3),
     IN p_CountyName VARCHAR(100),
     IN p_StateCode VARCHAR(2),
     IN p_Latitude DECIMAL(8, 6),
@@ -2423,23 +2785,25 @@ BEGIN
     REPLACE INTO Counties (CountyCode, CountyName, StateCode, Latitude, Longitude)
     VALUES (p_CountyCode, p_CountyName, p_StateCode, p_Latitude, p_Longitude);
 
-END
-```
-</details>
-
-## `InsertMonthlyPrecipitationNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertMonthlyPrecipitationNorms(IN p_CountyID INT, IN p_Month VARCHAR(2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyPrecipitationNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyPrecipitationNorms`(
+    IN p_CountyID INT,
+    IN p_Month VARCHAR(2),
     IN p_NormPrecipitation DECIMAL(5, 2),
     IN p_StdDevPrecipitation DECIMAL(5, 2)
 )
@@ -2450,23 +2814,26 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormPrecipitation = VALUES(NormPrecipitation),
         StdDevPrecipitation = VALUES(StdDevPrecipitation);
-END
-```
-</details>
-
-## `InsertMonthlyPrecipitationTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertMonthlyPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
     IN p_Precipitation DECIMAL(5, 2)
 )
 BEGIN
@@ -2475,23 +2842,53 @@ BEGIN
     VALUES (p_CountyID, p_Year, p_Month, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = VALUES(Precipitation);
-END
-```
-</details>
-
-## `InsertMonthlyTemperatureNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertMonthlyTemperatureNorms(IN p_CountyID INT, IN p_Month VARCHAR(2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyPrecipitationWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyPrecipitationWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    
+    INSERT INTO monthly_precipitation_data_wi (CountyID, Year, Month, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Month, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = VALUES(Precipitation);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyTemperatureNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyTemperatureNorms`(
+    IN p_CountyID INT,
+    IN p_Month VARCHAR(2),
     IN p_NormTemperature DECIMAL(5, 2),
     IN p_StdDevTemperature DECIMAL(5, 2)
 )
@@ -2502,23 +2899,26 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormTemperature = VALUES(NormTemperature),
         StdDevTemperature = VALUES(StdDevTemperature);
-END
-```
-</details>
-
-## `InsertMonthlyTemperatureTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertMonthlyTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Month VARCHAR(2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
     IN p_Temperature DECIMAL(5, 2)
 )
 BEGIN
@@ -2527,23 +2927,53 @@ BEGIN
     VALUES (p_CountyID, p_Year, p_Month, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = VALUES(Temperature);
-END
-```
-</details>
-
-## `InsertSeasonalPrecipitationNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertSeasonalPrecipitationNorms(IN p_CountyID INT, IN p_Season VARCHAR(6)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertMonthlyTemperatureWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertMonthlyTemperatureWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Month VARCHAR(2),
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    
+    INSERT INTO monthly_temperature_data_wi (CountyID, Year, Month, Temperature)
+    VALUES (p_CountyID, p_Year, p_Month, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = VALUES(Temperature);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalPrecipitationNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalPrecipitationNorms`(
+    IN p_CountyID INT,
+    IN p_Season VARCHAR(6),
     IN p_NormPrecipitation DECIMAL(5, 2),
     IN p_StdDevPrecipitation DECIMAL(5, 2)
 )
@@ -2553,23 +2983,26 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormPrecipitation = p_NormPrecipitation,
         StdDevPrecipitation = p_StdDevPrecipitation;
-END
-```
-</details>
-
-## `InsertSeasonalPrecipitationTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertSeasonalPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
     IN p_Precipitation DECIMAL(5, 2)
 )
 BEGIN
@@ -2577,23 +3010,52 @@ BEGIN
     VALUES (p_CountyID, p_Year, p_Season, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = p_Precipitation;
-END
-```
-</details>
-
-## `InsertSeasonalTemperatureNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertSeasonalTemperatureNorms(IN p_CountyID INT, IN p_Season VARCHAR(6)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalPrecipitationWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalPrecipitationWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO seasonal_precipitation_data_wi (CountyID, Year, Season, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Season, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = p_Precipitation;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalTemperatureNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalTemperatureNorms`(
+    IN p_CountyID INT,
+    IN p_Season VARCHAR(6),
     IN p_NormTemperature DECIMAL(5, 2),
     IN p_StdDevTemperature DECIMAL(5, 2)
 )
@@ -2603,23 +3065,26 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormTemperature = p_NormTemperature,
         StdDevTemperature = p_StdDevTemperature;
-END
-```
-</details>
-
-## `InsertSeasonalTemperatureTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertSeasonalTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Season VARCHAR(6)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
     IN p_Temperature DECIMAL(5, 2)
 )
 BEGIN
@@ -2627,23 +3092,51 @@ BEGIN
     VALUES (p_CountyID, p_Year, p_Season, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = p_Temperature;
-END
-```
-</details>
-
-## `InsertState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertState(IN stateCode VARCHAR(2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSeasonalTemperatureWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertSeasonalTemperatureWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Season VARCHAR(6),
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO seasonal_temperature_data_wi (CountyID, Year, Season, Temperature)
+    VALUES (p_CountyID, p_Year, p_Season, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = p_Temperature;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertState`(
+    IN stateCode VARCHAR(2),
     IN stateAbbr VARCHAR(2),
     IN stateName VARCHAR(100)
 )
@@ -2651,23 +3144,25 @@ BEGIN
     
     REPLACE INTO States (StateCode, StateAbbr, StateName)
     VALUES (stateCode, stateAbbr, stateName);
-END
-```
-</details>
-
-## `InsertYearlyPrecipitationNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertYearlyPrecipitationNorms(IN p_CountyID INT, IN p_NormPrecipitation DECIMAL(5, 2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyPrecipitationNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyPrecipitationNorms`(
+    IN p_CountyID INT,
+    IN p_NormPrecipitation DECIMAL(5, 2),
     IN p_StdDevPrecipitation DECIMAL(5, 2)
 )
 BEGIN
@@ -2676,45 +3171,77 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormPrecipitation = p_NormPrecipitation,
         StdDevPrecipitation = p_StdDevPrecipitation;
-END
-```
-</details>
-
-## `InsertYearlyPrecipitationTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertYearlyPrecipitationTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Precipitation DECIMAL(5, 2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyPrecipitationTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyPrecipitationTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Precipitation DECIMAL(5, 2)
 )
 BEGIN
     INSERT INTO yearly_precipitation_data_TargetState (CountyID, Year, Precipitation)
     VALUES (p_CountyID, p_Year, p_Precipitation)
     ON DUPLICATE KEY UPDATE
         Precipitation = p_Precipitation;
-END
-```
-</details>
-
-## `InsertYearlyTemperatureNorms`
-
-**Signature**
-
-```sql
-PROCEDURE InsertYearlyTemperatureNorms(IN p_CountyID INT, IN p_NormTemperature DECIMAL(5, 2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
-,
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyPrecipitationWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyPrecipitationWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Precipitation DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO yearly_precipitation_data_wi (CountyID, Year, Precipitation)
+    VALUES (p_CountyID, p_Year, p_Precipitation)
+    ON DUPLICATE KEY UPDATE
+        Precipitation = p_Precipitation;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyTemperatureNorms` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyTemperatureNorms`(
+    IN p_CountyID INT,
+    IN p_NormTemperature DECIMAL(5, 2),
     IN p_StdDevTemperature DECIMAL(5, 2)
 )
 BEGIN
@@ -2723,28 +3250,73 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         NormTemperature = p_NormTemperature,
         StdDevTemperature = p_StdDevTemperature;
-END
-```
-</details>
-
-## `InsertYearlyTemperatureTargetState`
-
-**Signature**
-
-```sql
-PROCEDURE InsertYearlyTemperatureTargetState(IN p_CountyID INT, IN p_Year INT, IN p_Temperature DECIMAL(5, 2)
-```
-
-<details>
-<summary>Body</summary>
-
-```sql
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyTemperatureTargetState` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyTemperatureTargetState`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Temperature DECIMAL(5, 2)
 )
 BEGIN
     INSERT INTO yearly_temperature_data_TargetState (CountyID, Year, Temperature)
     VALUES (p_CountyID, p_Year, p_Temperature)
     ON DUPLICATE KEY UPDATE
         Temperature = p_Temperature;
-END
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertYearlyTemperatureWI` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = cp850 */ ;
+/*!50003 SET character_set_results = cp850 */ ;
+/*!50003 SET collation_connection  = cp850_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`driftless`@`%` PROCEDURE `InsertYearlyTemperatureWI`(
+    IN p_CountyID INT,
+    IN p_Year INT,
+    IN p_Temperature DECIMAL(5, 2)
+)
+BEGIN
+    INSERT INTO yearly_temperature_data_wi (CountyID, Year, Temperature)
+    VALUES (p_CountyID, p_Year, p_Temperature)
+    ON DUPLICATE KEY UPDATE
+        Temperature = p_Temperature;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-09-25 15:17:41
 ```
-</details>

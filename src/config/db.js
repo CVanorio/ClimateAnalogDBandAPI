@@ -20,6 +20,8 @@ const connectionOptions = {
   queueLimit        : 0
 };
 
+console.log("DB Host: ", process.env.DB_HOST)
+
 const pool = mysql.createPool(connectionOptions);
 
 module.exports = { pool };
