@@ -35,6 +35,7 @@ const {
 
 const { roundToTwo } = require('../utils/math');
 const { parseMonthValues } = require('../utils/fixedWidth');
+const { getLatestInsertedSeason } = require('../utils/seasonCheckpoint');
 
 /* ========================================================================== */
 /* Utilities                                                                  */
@@ -400,66 +401,54 @@ async function insertTargetStateSeasonalData(
     query = 'REPLACE INTO TargetStateCountySeasonalTemp_TEMP (CountyID, Year, Season, Temperature) VALUES (?, ?, ?, ?);';
   }
 
+  // Calculate seasonal totals, skipping -9.99/-99.99
   let winter = prevDecember;
   let spring = 0;
   let summer = 0;
   let fall = 0;
-
-  // For current year, only include seasons that are "complete" so far.
-  if (yearData.Year === currentYear) {
-    for (const i in yearData.MonthData) {
-      const v = yearData.MonthData[i];
-      if (i < 2 && currentMonth > 2) winter += v;
-      else if (i < 5 && currentMonth > 5) spring += v;
-      else if (i < 8 && currentMonth > 8) summer += v;
-      else if (i < 11 && currentMonth === 11) fall += v;
-    }
-  } else {
-    // Historical years: include full seasons.
-    for (const i in yearData.MonthData) {
-      const v = yearData.MonthData[i];
-      if (i < 2) winter += v;
-      else if (i < 5) spring += v;
-      else if (i < 8) summer += v;
-      else if (i < 11) fall += v;
-    }
+  for (let i = 0; i < yearData.MonthData.length; i++) {
+    const v = yearData.MonthData[i];
+    if (v === -9.99 || v === -99.99) continue;
+    if (i < 2) winter += v;
+    else if (i < 5) spring += v;
+    else if (i < 8) summer += v;
+    else if (i < 11) fall += v;
   }
-
   if (yearData.DataType === tempDatatype) {
     winter /= 3; spring /= 3; summer /= 3; fall /= 3;
   }
-
   winter = roundToTwo(winter);
   spring = roundToTwo(spring);
   summer = roundToTwo(summer);
   fall   = roundToTwo(fall);
 
-  // Guard against seasons whose "end" is already captured by the checkpoint.
+  // Get latest inserted season and year
+  const latestSeasonObj = await getLatestInsertedSeason(connection);
+  const seasonOrder = ['winter', 'spring', 'summer', 'fall'];
+  const currentMonthNum = currentMonth + 1; // JS months are 0-based
+  const seasonEndMonth = { winter: 2, spring: 5, summer: 8, fall: 11 };
+
+  // Only insert a season if current month is > end month of that season and it hasn't already been inserted for this year
   const baseYear = Number(yearData.Year);
-  const seasonEnd = {
-    winter: { year: baseYear + 1, month: 2 }, // Feb next year
-    spring: { year: baseYear,     month: 5 }, // May
-    summer: { year: baseYear,     month: 8 }, // Aug
-    fall:   { year: baseYear,     month: 11 }, // Nov
-  };
-  function isAfterLatest(season) {
-    if (!latestYearMonth) return true;
-    const end = seasonEnd[season];
-    const ly = Number(latestYearMonth.year);
-    const lm = Number(latestYearMonth.month);
-    return end.year > ly || (end.year === ly && end.month > lm);
+  async function shouldInsert(season) {
+    if (currentMonthNum > seasonEndMonth[season]) {
+      if (!latestSeasonObj || baseYear > latestSeasonObj.year || (baseYear === latestSeasonObj.year && seasonOrder.indexOf(season) > seasonOrder.indexOf(latestSeasonObj.season))) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  if (baseYear !== 1895 && isAfterLatest('winter')) {
+  if (baseYear !== 1895 && await shouldInsert('winter')) {
     await connection.execute(query, [yearData.CountyID, baseYear, seasonalValues[0], winter]);
   }
-  if (isAfterLatest('spring')) {
+  if (await shouldInsert('spring')) {
     await connection.execute(query, [yearData.CountyID, baseYear, seasonalValues[1], spring]);
   }
-  if (isAfterLatest('summer')) {
+  if (await shouldInsert('summer')) {
     await connection.execute(query, [yearData.CountyID, baseYear, seasonalValues[2], summer]);
   }
-  if (isAfterLatest('fall')) {
+  if (await shouldInsert('fall')) {
     await connection.execute(query, [yearData.CountyID, baseYear, seasonalValues[3], fall]);
   }
 }
