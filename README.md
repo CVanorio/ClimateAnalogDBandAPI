@@ -1,5 +1,7 @@
 # Climate Analog Database & API
 
+## **View the tool [here!](https://apps.nelson.wisc.edu/)**
+
 This project provides a Node.js + Express backend to ingest NOAA climate data, store it in MySQL, calculate Euclidean distances between counties, and serve results to a frontend via JSON endpoints.  
 
 It is designed to be modular and production-ready, with a clean folder structure.
