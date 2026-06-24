@@ -26,6 +26,10 @@ async function runWithNewConnection(query) {
   let connection;
   try {
     connection = await pool.getConnection();
+    // Push MySQL server-side timeouts high enough for heavy stored procedures
+    await connection.execute("SET SESSION net_read_timeout = 3600");
+    await connection.execute("SET SESSION net_write_timeout = 3600");
+    await connection.execute("SET SESSION wait_timeout = 28800");
     await connection.execute(query);
   } finally {
     if (connection) connection.release();
@@ -103,7 +107,7 @@ async function createTempDistanceTables(connection) {
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year)
     );`,
-    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
+    `TRUNCATE TABLE yearly_temperature_distances_TEMP;`,
 
     // SEASONAL
     `CREATE TABLE IF NOT EXISTS seasonal_precipitation_distances_TEMP (
@@ -123,7 +127,7 @@ async function createTempDistanceTables(connection) {
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Season)
     );`,
-    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
+    `TRUNCATE TABLE seasonal_temperature_distances_TEMP;`,
 
     // MONTHLY
     `CREATE TABLE IF NOT EXISTS monthly_precipitation_distances_TEMP (
@@ -143,7 +147,7 @@ async function createTempDistanceTables(connection) {
       Distance DECIMAL(5,2),
       PRIMARY KEY (TargetCountyID, AnalogCountyID, Year, Month)
     );`,
-    `TRUNCATE TABLE yearly_precipitation_distances_TEMP;`,
+    `TRUNCATE TABLE monthly_temperature_distances_TEMP;`,
   ];
 
   for (const q of queries) {

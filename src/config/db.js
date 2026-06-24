@@ -11,13 +11,16 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const connectionOptions = {
-  host              : process.env.DB_HOST,
-  user              : process.env.DB_USER,
-  password          : process.env.DB_PASSWORD,
-  database          : process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit   : 100,
-  queueLimit        : 0
+  host                 : process.env.DB_HOST,
+  user                 : process.env.DB_USER,
+  password             : process.env.DB_PASSWORD,
+  database             : process.env.DB_NAME,
+  waitForConnections   : true,
+  connectionLimit      : 100,
+  queueLimit           : 0,
+  connectTimeout       : 60000,      // 60 s for initial TCP handshake
+  enableKeepAlive      : true,
+  keepAliveInitialDelay: 10000,      // send keepalive probes after 10 s idle
 };
 
 console.log("DB Host: ", process.env.DB_HOST)

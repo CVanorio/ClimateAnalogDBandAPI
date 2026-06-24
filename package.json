@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docs:db": "node scripts/generate-db-docs.js"
+    "docs:db": "node scripts/generate-db-docs.js",
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "kill-port": "^2.0.1",
     "mysql2": "^3.9.9",
     "node-cron": "^4.1.1",
+    "nodemon": "^3.1.11",
     "portfinder": "^1.0.32"
   }
 }

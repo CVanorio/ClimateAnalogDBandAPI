@@ -85,8 +85,8 @@ function saveLastCheckedDate(tempDate, precipDate) {
 function startNOAACronJob() {
   console.log('Cron job initialized');
 
-  // Run daily at 3AM (server local time).
-  cron.schedule('00 03 * * *', async () => {
+  // Run daily at 3AM
+  cron.schedule('55 15 * * *', async () => {
     console.log('[Cron] Checking for NOAA file updates...');
 
     // Compute current yyyymm for idempotence (one run per month is enough)

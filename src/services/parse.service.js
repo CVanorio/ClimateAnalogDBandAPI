@@ -355,7 +355,7 @@ async function insertTargetStateMonthlyData(yearData, connection, latestYearMont
     const value = yearData.MonthData[i];
     if (value === -9.99 || value === -99.90) continue;
 
-    // If same year as checkpoint, skip months already processed.
+    // Skip months already processed in the checkpoint year.
     if (latestYearMonth && Number(yearData.Year) === Number(latestYearMonth.year)) {
       const monthNum = parseInt(monthValues[i], 10);
       if (monthNum <= Number(latestYearMonth.month)) continue;
@@ -422,7 +422,6 @@ async function insertTargetStateSeasonalData(
   summer = roundToTwo(summer);
   fall   = roundToTwo(fall);
 
-  // Get latest inserted season and year
   const latestSeasonObj = await getLatestInsertedSeason(connection);
   const seasonOrder = ['winter', 'spring', 'summer', 'fall'];
   const currentMonthNum = currentMonth + 1; // JS months are 0-based
@@ -481,22 +480,21 @@ async function parseAndInsertAllNormsAndTargetStateData(responseData) {
     const normProps = { monthlyNorms: {}, seasonalNorms: {}, yearlyNorms: {} };
 
     for (const line of lines) {
+      // Fast-skip years before the checkpoint by reading year from raw string (no DB call needed).
+      if (!NEW_CLIMATE_NORMALS && latestYearMonth) {
+        const lineYear = parseInt(line.substring(7, 11), 10);
+        const ly = Number(latestYearMonth.year);
+        const lm = Number(latestYearMonth.month);
+        if (lineYear < ly || (lineYear === ly && lm === 12)) {
+          prevDecember = parseMonthValues(line)[11];
+          continue;
+        }
+      }
+
       const yearData = await parseMonthlyLineData(line, connection);
       if (yearData.CountyID === null) continue;
 
       lastDataType = yearData.DataType;
-
-      // If NOT recomputing normals, skip whole years that are fully processed or when latest month is December
-      // or any year earlier than the checkpoint.
-      if (!NEW_CLIMATE_NORMALS && latestYearMonth) {
-        const y = Number(yearData.Year);
-        const ly = Number(latestYearMonth.year);
-        const lm = Number(latestYearMonth.month);
-        if (y < ly || (y === ly && lm === 12)) {
-          prevDecember = yearData.MonthData[11];
-          continue;
-        }
-      }
 
       if (yearData.Year === 1895) prevDecember = null;
 
